@@ -8,5 +8,4 @@ type Article struct {
 	Image       string `json:"image" form:"image"`
 	Description string `json:"description" form:"description"`
 	Label       string `json:"label" form:"label"`
-	Slug        string `json:"slug" form:"slug"`
 }

@@ -4,11 +4,14 @@ import (
 	"back-end-golang/dtos"
 	"back-end-golang/models"
 	"back-end-golang/repositories"
-	"fmt"
+	"errors"
+	"sort"
+	"strings"
 )
 
 type StationUsecase interface {
 	GetAllStations(page, limit int) ([]dtos.StationResponse, int, error)
+	GetAllStationsByAdmin(page, limit int, search, sortBy, filter string) ([]dtos.StationResponse, int, error)
 	GetStationByID(id uint) (dtos.StationResponse, error)
 	CreateStation(station *dtos.StationInput) (dtos.StationResponse, error)
 	UpdateStation(id uint, station dtos.StationInput) (dtos.StationResponse, error)
@@ -26,7 +29,7 @@ func NewStationUsecase(StationRepo repositories.StationRepository) StationUsecas
 // GetAllStations godoc
 // @Summary      Get all stations
 // @Description  Get all stations
-// @Tags         Station
+// @Tags         Admin - Station
 // @Accept       json
 // @Produce      json
 // @Param page query int false "Page number"
@@ -37,8 +40,7 @@ func NewStationUsecase(StationRepo repositories.StationRepository) StationUsecas
 // @Failure      403 {object} dtos.ForbiddenResponse
 // @Failure      404 {object} dtos.NotFoundResponse
 // @Failure      500 {object} dtos.InternalServerErrorResponse
-// @Router       /admin/station [get]
-// @Security BearerAuth
+// @Router       /public/station [get]
 func (u *stationUsecase) GetAllStations(page, limit int) ([]dtos.StationResponse, int, error) {
 	stations, count, err := u.stationRepo.GetAllStations(page, limit)
 	if err != nil {
@@ -61,10 +63,75 @@ func (u *stationUsecase) GetAllStations(page, limit int) ([]dtos.StationResponse
 	return stationResponses, count, nil
 }
 
+// GetAllStations godoc
+// @Summary      Get all stations
+// @Description  Get all stations
+// @Tags         Admin - Station
+// @Accept       json
+// @Produce      json
+// @Param page query int false "Page number"
+// @Param limit query int false "Number of items per page"
+// @Param search query string false "Search data"
+// @Param sort_by query string false "Sort by name"
+// @Param filter query string false "Filter data"
+// @Success      200 {object} dtos.GetAllStationStatusOKResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /admin/station [get]
+// @Security BearerAuth
+func (u *stationUsecase) GetAllStationsByAdmin(page, limit int, search, sortBy, filter string) ([]dtos.StationResponse, int, error) {
+	stations, count, err := u.stationRepo.GetAllStationsByAdmin(page, limit, search)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	filter = strings.ToLower(filter)
+
+	var stationResponses []dtos.StationResponse
+	for _, station := range stations {
+		deletedStation := ""
+
+		if filter == "inactive" && station.DeletedAt.Time.IsZero() {
+			continue
+		} else if filter == "active" && !station.DeletedAt.Time.IsZero() {
+			continue
+		}
+
+		if !station.DeletedAt.Time.IsZero() {
+			deletedStation = station.DeletedAt.Time.Format("2006-01-02T15:04:05.000-07:00")
+		}
+		stationResponse := dtos.StationResponse{
+			StationID: station.ID,
+			Origin:    station.Origin,
+			Name:      station.Name,
+			Initial:   station.Initial,
+			CreatedAt: station.CreatedAt,
+			UpdatedAt: station.UpdatedAt,
+			DeletedAt: &deletedStation,
+		}
+		stationResponses = append(stationResponses, stationResponse)
+	}
+
+	// Sort trainResponses based on price
+	if strings.ToLower(sortBy) == "asc" {
+		sort.SliceStable(stationResponses, func(i, j int) bool {
+			return stationResponses[i].Name < stationResponses[j].Name
+		})
+	} else if strings.ToLower(sortBy) == "desc" {
+		sort.SliceStable(stationResponses, func(i, j int) bool {
+			return stationResponses[i].Name > stationResponses[j].Name
+		})
+	}
+	return stationResponses, count, nil
+}
+
 // GetStationByID godoc
 // @Summary      Get station by ID
 // @Description  Get station by ID
-// @Tags         Station
+// @Tags         Admin - Station
 // @Accept       json
 // @Produce      json
 // @Param id path integer true "ID station"
@@ -74,11 +141,10 @@ func (u *stationUsecase) GetAllStations(page, limit int) ([]dtos.StationResponse
 // @Failure      403 {object} dtos.ForbiddenResponse
 // @Failure      404 {object} dtos.NotFoundResponse
 // @Failure      500 {object} dtos.InternalServerErrorResponse
-// @Router       /admin/station/{id} [get]
-// @Security BearerAuth
+// @Router       /public/station/{id} [get]
 func (u *stationUsecase) GetStationByID(id uint) (dtos.StationResponse, error) {
 	var stationResponses dtos.StationResponse
-	station, err := u.stationRepo.GetStationByID(id)
+	station, err := u.stationRepo.GetStationByID2(id)
 	if err != nil {
 		return stationResponses, err
 	}
@@ -96,11 +162,11 @@ func (u *stationUsecase) GetStationByID(id uint) (dtos.StationResponse, error) {
 // CreateStation godoc
 // @Summary      Create a new station
 // @Description  Create a new station
-// @Tags         Station
+// @Tags         Admin - Station
 // @Accept       json
 // @Produce      json
 // @Param        request body dtos.StationInput true "Payload Body [RAW]"
-// @Success      200 {object} dtos.StationStatusOKResponse
+// @Success      201 {object} dtos.StationCreeatedResponse
 // @Failure      400 {object} dtos.BadRequestResponse
 // @Failure      401 {object} dtos.UnauthorizedResponse
 // @Failure      403 {object} dtos.ForbiddenResponse
@@ -110,6 +176,9 @@ func (u *stationUsecase) GetStationByID(id uint) (dtos.StationResponse, error) {
 // @Security BearerAuth
 func (u *stationUsecase) CreateStation(station *dtos.StationInput) (dtos.StationResponse, error) {
 	var stationResponses dtos.StationResponse
+	if station.Initial == "" || station.Name == "" || station.Origin == "" {
+		return stationResponses, errors.New("Failed to create station")
+	}
 	createStation := models.Station{
 		Origin:  station.Origin,
 		Name:    station.Name,
@@ -135,7 +204,7 @@ func (u *stationUsecase) CreateStation(station *dtos.StationInput) (dtos.Station
 // UpdateStation godoc
 // @Summary      Update station
 // @Description  Update station
-// @Tags         Station
+// @Tags         Admin - Station
 // @Accept       json
 // @Produce      json
 // @Param id path integer true "ID station"
@@ -146,14 +215,16 @@ func (u *stationUsecase) CreateStation(station *dtos.StationInput) (dtos.Station
 // @Failure      403 {object} dtos.ForbiddenResponse
 // @Failure      404 {object} dtos.NotFoundResponse
 // @Failure      500 {object} dtos.InternalServerErrorResponse
-// @Router       /admin/station [put]
+// @Router       /admin/station/{id} [put]
 // @Security BearerAuth
 func (u *stationUsecase) UpdateStation(id uint, stationInput dtos.StationInput) (dtos.StationResponse, error) {
 	var station models.Station
 	var stationResponse dtos.StationResponse
+	if stationInput.Initial == "" || stationInput.Name == "" || stationInput.Origin == "" {
+		return stationResponse, errors.New("Failed to update station")
+	}
 
 	station, err := u.stationRepo.GetStationByID(id)
-	fmt.Println(station)
 	if err != nil {
 		return stationResponse, err
 	}
@@ -182,7 +253,7 @@ func (u *stationUsecase) UpdateStation(id uint, stationInput dtos.StationInput) 
 // DeleteStation godoc
 // @Summary      Delete a station
 // @Description  Delete a station
-// @Tags         Station
+// @Tags         Admin - Station
 // @Accept       json
 // @Produce      json
 // @Param id path integer true "ID station"
@@ -195,11 +266,5 @@ func (u *stationUsecase) UpdateStation(id uint, stationInput dtos.StationInput) 
 // @Router       /admin/station/{id} [delete]
 // @Security BearerAuth
 func (u *stationUsecase) DeleteStation(id uint) error {
-	station, err := u.stationRepo.GetStationByID(id)
-
-	if err != nil {
-		return nil
-	}
-	err = u.stationRepo.DeleteStation(station)
-	return err
+	return u.stationRepo.DeleteStation(id)
 }

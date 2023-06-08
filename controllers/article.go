@@ -3,8 +3,10 @@ package controllers
 import (
 	"back-end-golang/dtos"
 	"back-end-golang/helpers"
+	"back-end-golang/models"
 	"back-end-golang/usecases"
 	"net/http"
+	"regexp"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
@@ -43,9 +45,15 @@ func (c *articleController) GetAllArticles(ctx echo.Context) error {
 
 	articles, count, err := c.articleUsecase.GetAllArticles(page, limit)
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, dtos.ErrorDTO{
-			Message: err.Error(),
-		})
+
+		return ctx.JSON(
+			http.StatusInternalServerError,
+			helpers.NewErrorResponse(
+				http.StatusInternalServerError,
+				"Failed fetching articles",
+				helpers.GetErrorData(err),
+			),
+		)
 	}
 
 	return ctx.JSON(
@@ -88,14 +96,104 @@ func (c *articleController) GetArticleByID(ctx echo.Context) error {
 }
 
 func (c *articleController) CreateArticle(ctx echo.Context) error {
-	var articleDTO dtos.ArticleInput
-	if err := ctx.Bind(&articleDTO); err != nil {
-		return ctx.JSON(http.StatusBadRequest, dtos.ErrorDTO{
-			Message: err.Error(),
-		})
+	var articleInput dtos.ArticleInput
+	if err := ctx.Bind(&articleInput); err != nil {
+		return ctx.JSON(
+			http.StatusBadRequest,
+			helpers.NewErrorResponse(
+				http.StatusBadRequest,
+				"Failed binding article",
+				helpers.GetErrorData(err),
+			),
+		)
 	}
 
-	article, err := c.articleUsecase.CreateArticle(&articleDTO)
+	if articleInput.Image == "" {
+		formHeader, err := ctx.FormFile("file")
+		if err != nil {
+			if err != nil {
+				return ctx.JSON(
+					http.StatusInternalServerError,
+					helpers.NewErrorResponse(
+						http.StatusInternalServerError,
+						"Error uploading photo",
+						helpers.GetErrorData(err),
+					),
+				)
+			}
+		}
+
+		//get file from header
+		formFile, err := formHeader.Open()
+		if err != nil {
+			return ctx.JSON(
+				http.StatusInternalServerError,
+				helpers.NewErrorResponse(
+					http.StatusInternalServerError,
+					"Error uploading photo",
+					helpers.GetErrorData(err),
+				),
+			)
+		}
+
+		var re = regexp.MustCompile(`.png|.jpeg|.jpg`)
+
+		if !re.MatchString(formHeader.Filename) {
+			return ctx.JSON(
+				http.StatusBadRequest,
+				helpers.NewErrorResponse(
+					http.StatusBadRequest,
+					"The provided file format is not allowed. Please upload a JPEG or PNG image",
+					helpers.GetErrorData(err),
+				),
+			)
+		}
+
+		uploadUrl, err := usecases.NewMediaUpload().FileUpload(models.File{File: formFile})
+
+		if err != nil {
+			return ctx.JSON(
+				http.StatusInternalServerError,
+				helpers.NewErrorResponse(
+					http.StatusInternalServerError,
+					"Error uploading photo",
+					helpers.GetErrorData(err),
+				),
+			)
+		}
+		articleInput.Image = uploadUrl
+	} else {
+		var url models.Url
+		url.Url = articleInput.Image
+
+		var re = regexp.MustCompile(`.png|.jpeg|.jpg`)
+		if !re.MatchString(articleInput.Image) {
+			return ctx.JSON(
+				http.StatusBadRequest,
+				helpers.NewErrorResponse(
+					http.StatusBadRequest,
+					"The provided file format is not allowed. Please upload a JPEG or PNG image",
+					helpers.GetErrorData(nil),
+				),
+			)
+		}
+
+		uploadUrl, err := usecases.NewMediaUpload().RemoteUpload(url)
+		if uploadUrl == "" || err != nil {
+			return ctx.JSON(
+				http.StatusInternalServerError,
+				helpers.NewErrorResponse(
+					http.StatusInternalServerError,
+					"Error uploading photo",
+					helpers.GetErrorData(err),
+				),
+			)
+		}
+
+		articleInput.Image = uploadUrl
+	}
+
+	article, err := c.articleUsecase.CreateArticle(&articleInput)
 	if err != nil {
 		return ctx.JSON(
 			http.StatusBadRequest,
@@ -121,9 +219,14 @@ func (c *articleController) UpdateArticle(ctx echo.Context) error {
 
 	var articleInput dtos.ArticleInput
 	if err := ctx.Bind(&articleInput); err != nil {
-		return ctx.JSON(http.StatusBadRequest, dtos.ErrorDTO{
-			Message: err.Error(),
-		})
+		return ctx.JSON(
+			http.StatusBadRequest,
+			helpers.NewErrorResponse(
+				http.StatusBadRequest,
+				"Failed binding article",
+				helpers.GetErrorData(err),
+			),
+		)
 	}
 
 	id, _ := strconv.Atoi(ctx.Param("id"))
@@ -140,11 +243,101 @@ func (c *articleController) UpdateArticle(ctx echo.Context) error {
 		)
 	}
 
+	if articleInput.Image == "" {
+		formHeader, err := ctx.FormFile("file")
+		if err != nil {
+			if err != nil {
+				return ctx.JSON(
+					http.StatusInternalServerError,
+					helpers.NewErrorResponse(
+						http.StatusInternalServerError,
+						"Error uploading photo",
+						helpers.GetErrorData(err),
+					),
+				)
+			}
+		}
+
+		//get file from header
+		formFile, err := formHeader.Open()
+		if err != nil {
+			return ctx.JSON(
+				http.StatusInternalServerError,
+				helpers.NewErrorResponse(
+					http.StatusInternalServerError,
+					"Error uploading photo",
+					helpers.GetErrorData(err),
+				),
+			)
+		}
+
+		var re = regexp.MustCompile(`.png|.jpeg|.jpg`)
+
+		if !re.MatchString(formHeader.Filename) {
+			return ctx.JSON(
+				http.StatusBadRequest,
+				helpers.NewErrorResponse(
+					http.StatusBadRequest,
+					"The provided file format is not allowed. Please upload a JPEG or PNG image",
+					helpers.GetErrorData(err),
+				),
+			)
+		}
+
+		uploadUrl, err := usecases.NewMediaUpload().FileUpload(models.File{File: formFile})
+
+		if err != nil {
+			return ctx.JSON(
+				http.StatusInternalServerError,
+				helpers.NewErrorResponse(
+					http.StatusInternalServerError,
+					"Error uploading photo",
+					helpers.GetErrorData(err),
+				),
+			)
+		}
+		articleInput.Image = uploadUrl
+	} else {
+		var url models.Url
+		url.Url = articleInput.Image
+
+		var re = regexp.MustCompile(`.png|.jpeg|.jpg`)
+		if !re.MatchString(articleInput.Image) {
+			return ctx.JSON(
+				http.StatusBadRequest,
+				helpers.NewErrorResponse(
+					http.StatusBadRequest,
+					"The provided file format is not allowed. Please upload a JPEG or PNG image",
+					helpers.GetErrorData(nil),
+				),
+			)
+		}
+
+		uploadUrl, err := usecases.NewMediaUpload().RemoteUpload(url)
+		if uploadUrl == "" || err != nil {
+			return ctx.JSON(
+				http.StatusInternalServerError,
+				helpers.NewErrorResponse(
+					http.StatusInternalServerError,
+					"Error uploading photo",
+					helpers.GetErrorData(err),
+				),
+			)
+		}
+
+		articleInput.Image = uploadUrl
+	}
+
 	articleResp, err := c.articleUsecase.UpdateArticle(uint(id), articleInput)
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, dtos.ErrorDTO{
-			Message: err.Error(),
-		})
+		return ctx.JSON(
+			http.StatusBadRequest,
+			helpers.NewErrorResponse(
+				http.StatusBadRequest,
+				"Failed binding article",
+				helpers.GetErrorData(err),
+			),
+		)
 	}
 
 	return ctx.JSON(
@@ -162,9 +355,14 @@ func (c *articleController) DeleteArticle(ctx echo.Context) error {
 
 	err := c.articleUsecase.DeleteArticle(uint(id))
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, dtos.ErrorDTO{
-			Message: err.Error(),
-		})
+		return ctx.JSON(
+			http.StatusBadRequest,
+			helpers.NewErrorResponse(
+				http.StatusBadRequest,
+				"Failed to delete article",
+				helpers.GetErrorData(err),
+			),
+		)
 	}
 	return ctx.JSON(
 		http.StatusOK,

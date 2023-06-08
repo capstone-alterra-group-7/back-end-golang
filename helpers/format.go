@@ -9,9 +9,9 @@ func FormatDateToYMD(date *time.Time) string {
 	return ""
 }
 
-func FormatStringToDate(stringDate string) time.Time {
+func FormatStringToDate(stringDate string) (time.Time, error) {
 	dateNow := "2006-01-02"
-	birthDateParse, _ := time.Parse(dateNow, stringDate)
-	return birthDateParse
+	birthDateParse, err := time.Parse(dateNow, stringDate)
+	return birthDateParse, err
 
 }

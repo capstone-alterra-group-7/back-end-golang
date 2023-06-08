@@ -4,9 +4,9 @@ import (
 	"back-end-golang/dtos"
 	"back-end-golang/helpers"
 	"back-end-golang/middlewares"
-	"back-end-golang/models"
 	"back-end-golang/usecases"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -19,7 +19,67 @@ func NewHistorySearchController(historyUsecase usecases.HistorySearchUseCase) Hi
 	return HistorySearchController{historyUsecase}
 }
 
-func (h *HistorySearchController) HistorySearchGetById(ctx echo.Context) error {
+func (h *HistorySearchController) HistorySearchGetAll(ctx echo.Context) error {
+	pageParam := ctx.QueryParam("page")
+	page, err := strconv.Atoi(pageParam)
+	if err != nil {
+		page = 1
+	}
+
+	limitParam := ctx.QueryParam("limit")
+	limit, err := strconv.Atoi(limitParam)
+	if err != nil {
+		limit = 10
+	}
+	tokenString := middlewares.GetTokenFromHeader(ctx.Request())
+	if tokenString == "" {
+		return ctx.JSON(
+			http.StatusUnauthorized,
+			helpers.NewErrorResponse(
+				http.StatusUnauthorized,
+				"No token provided",
+				helpers.GetErrorData(nil),
+			),
+		)
+	}
+
+	userId, err := middlewares.GetUserIdFromToken(tokenString)
+	if err != nil {
+		return ctx.JSON(
+			http.StatusUnauthorized,
+			helpers.NewErrorResponse(
+				http.StatusUnauthorized,
+				"No token provided",
+				helpers.GetErrorData(err),
+			),
+		)
+	}
+	histories, count, err := h.historyUsecase.HistorySearchGetAll(userId, page, limit)
+	if err != nil {
+		return ctx.JSON(
+			http.StatusInternalServerError,
+			helpers.NewErrorResponse(
+				http.StatusInternalServerError,
+				"Failed fetching history search",
+				helpers.GetErrorData(err),
+			),
+		)
+	}
+
+	return ctx.JSON(
+		http.StatusOK,
+		helpers.NewPaginationResponse(
+			http.StatusOK,
+			"Successfully get all history search",
+			histories,
+			page,
+			limit,
+			count,
+		),
+	)
+}
+
+func (h *HistorySearchController) HistorySearchCreate(ctx echo.Context) error {
 	tokenString := middlewares.GetTokenFromHeader(ctx.Request())
 	if tokenString == "" {
 		return ctx.JSON(
@@ -44,32 +104,8 @@ func (h *HistorySearchController) HistorySearchGetById(ctx echo.Context) error {
 		)
 	}
 
-	var history models.HistorySearch
-	history, err = h.historyUsecase.HistorySearchGetById(userId)
-	if err != nil {
-		return ctx.JSON(
-			http.StatusBadRequest,
-			helpers.NewErrorResponse(
-				http.StatusBadRequest,
-				"Failed to get history search data",
-				helpers.GetErrorData(err),
-			),
-		)
-	}
-
-	return ctx.JSON(
-		http.StatusOK,
-		helpers.NewResponse(
-			http.StatusOK,
-			"Successfully get history",
-			history,
-		),
-	)
-}
-
-func (h *HistorySearchController) HistorySearchCreate(ctx echo.Context) error {
-	var historyInput dtos.HistorySearchCreateInput
-	err := ctx.Bind(&historyInput)
+	var historyInput dtos.HistorySearchInput
+	err = ctx.Bind(&historyInput)
 	if err != nil {
 		return ctx.JSON(
 			http.StatusBadRequest,
@@ -81,7 +117,7 @@ func (h *HistorySearchController) HistorySearchCreate(ctx echo.Context) error {
 		)
 	}
 
-	history, err := h.historyUsecase.HistorySearchCreate(historyInput)
+	history, err := h.historyUsecase.HistorySearchCreate(userId, historyInput)
 	if err != nil {
 		return ctx.JSON(
 			http.StatusBadRequest,
@@ -94,76 +130,18 @@ func (h *HistorySearchController) HistorySearchCreate(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(
-		http.StatusOK,
+		http.StatusCreated,
 		helpers.NewResponse(
-			http.StatusOK,
+			http.StatusCreated,
 			"Successfully create history",
 			history,
 		),
 	)
 }
 
-func (h *HistorySearchController) HistorySearchUpdate(ctx echo.Context) error {
-	var historyInput dtos.HistorySearchUpdateInput
-	err := ctx.Bind(&historyInput)
-	if err != nil {
-		return ctx.JSON(
-			http.StatusBadRequest,
-			helpers.NewErrorResponse(
-				http.StatusBadRequest,
-				"Failed to update history search data",
-				helpers.GetErrorData(err),
-			),
-		)
-	}
-
-	tokenString := middlewares.GetTokenFromHeader(ctx.Request())
-	if tokenString == "" {
-		return ctx.JSON(
-			http.StatusUnauthorized,
-			helpers.NewErrorResponse(
-				http.StatusUnauthorized,
-				"No token provided",
-				helpers.GetErrorData(nil),
-			),
-		)
-	}
-
-	userId, err := middlewares.GetUserIdFromToken(tokenString)
-	if err != nil {
-		return ctx.JSON(
-			http.StatusUnauthorized,
-			helpers.NewErrorResponse(
-				http.StatusUnauthorized,
-				"No token provided",
-				helpers.GetErrorData(err),
-			),
-		)
-	}
-
-	history, err := h.historyUsecase.HistorySearchUpdate(userId, historyInput)
-	if err != nil {
-		return ctx.JSON(
-			http.StatusBadRequest,
-			helpers.NewErrorResponse(
-				http.StatusBadRequest,
-				"Failed to update history search data",
-				helpers.GetErrorData(err),
-			),
-		)
-	}
-
-	return ctx.JSON(
-		http.StatusOK,
-		helpers.NewResponse(
-			http.StatusOK,
-			"Successfully update history",
-			history,
-		),
-	)
-}
-
 func (h *HistorySearchController) HistorySearchDelete(ctx echo.Context) error {
+	id, _ := strconv.Atoi(ctx.Param("id"))
+
 	tokenString := middlewares.GetTokenFromHeader(ctx.Request())
 	if tokenString == "" {
 		return ctx.JSON(
@@ -188,7 +166,7 @@ func (h *HistorySearchController) HistorySearchDelete(ctx echo.Context) error {
 		)
 	}
 
-	_, err = h.historyUsecase.HistorySearchDelete(userId)
+	err = h.historyUsecase.HistorySearchDelete(userId, uint(id))
 	if err != nil {
 		return ctx.JSON(
 			http.StatusBadRequest,

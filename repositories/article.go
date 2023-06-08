@@ -11,7 +11,7 @@ type ArticleRepository interface {
 	GetArticleByID(id uint) (models.Article, error)
 	CreateArticle(article models.Article) (models.Article, error)
 	UpdateArticle(article models.Article) (models.Article, error)
-	DeleteArticle(article models.Article) error
+	DeleteArticle(id uint) error
 }
 
 type articleRepository struct {
@@ -57,7 +57,8 @@ func (r *articleRepository) UpdateArticle(article models.Article) (models.Articl
 	return article, err
 }
 
-func (r *articleRepository) DeleteArticle(article models.Article) error {
-	err := r.db.Delete(&article).Error
+func (r *articleRepository) DeleteArticle(id uint) error {
+	var article models.Article
+	err := r.db.Where("id = ?", id).Delete(&article).Error
 	return err
 }

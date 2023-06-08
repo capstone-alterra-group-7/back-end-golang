@@ -4,6 +4,7 @@ import (
 	"back-end-golang/configs"
 	_ "back-end-golang/docs"
 	"back-end-golang/routes"
+	"log"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -20,10 +21,10 @@ import (
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
-// ec2-3-26-30-178.ap-southeast-2.compute.amazonaws.com:8088
+// capstone.hanifz.com
 // localhost:8088
 
-// @host      ec2-3-26-30-178.ap-southeast-2.compute.amazonaws.com:8088
+// @host      capstone.hanifz.com
 // @BasePath  /api/v1
 
 // @securityDefinitions.apikey BearerAuth
@@ -49,7 +50,12 @@ func main() {
 		panic(err)
 	}
 
-	err = configs.DBSeeder(db)
+	err = configs.TrainSeatSeeder(db)
+	if err != nil {
+		panic(err)
+	}
+
+	err = configs.AccountSeeder(db)
 	if err != nil {
 		panic(err)
 	}
@@ -57,5 +63,12 @@ func main() {
 	routes.Init(e, db)
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
-	e.Logger.Fatal(e.Start(":8088"))
+	// e.Logger.Fatal(e.Start(":8088"))
+
+	// Start server with TLS
+	err = e.StartTLS(":443", "/etc/nginx/ssl/fullchain.pem", "/etc/nginx/ssl/privkey.pem")
+	if err != nil {
+		log.Fatal("StartTLS: ", err)
+	}
+
 }

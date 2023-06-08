@@ -4,34 +4,136 @@ import (
 	"back-end-golang/dtos"
 	"back-end-golang/models"
 	"back-end-golang/repositories"
-	"fmt"
+	"errors"
+	"sort"
+	"strings"
 )
 
 type TrainUsecase interface {
-	GetAllTrains(page, limit int) ([]dtos.TrainResponse, int, error)
-	GetTrainByID(id uint) (dtos.TrainResponse, error)
-	CreateTrain(train *dtos.TrainInput) (dtos.TrainResponse, error)
-	UpdateTrain(id uint, trainInput dtos.TrainInput) (dtos.TrainResponse, error)
+	// admin
+	GetAllTrains(page, limit int) ([]dtos.TrainResponses, int, error)
+	GetAllTrainsByAdmin(page, limit int, search, sortBy, filter string) ([]dtos.TrainResponses, int, error)
+	GetTrainByID(id uint) (dtos.TrainResponses, error)
+	CreateTrain(train *dtos.TrainInput) (dtos.TrainResponses, error)
+	UpdateTrain(id uint, trainInput dtos.TrainInput) (dtos.TrainResponses, error)
 	DeleteTrain(id uint) error
+
+	// user
+	SearchTrainAvailable(page, limit, stationOrigin, stationDestination, sortByTrainId int, sortClassName, sortByPrice, sortByArriveTime string) ([]dtos.TrainResponse, int, error)
 }
 
 type trainUsecase struct {
-	trainRepo repositories.TrainRepository
+	trainRepo        repositories.TrainRepository
+	trainStationRepo repositories.TrainStationRepository
 }
 
-func NewTrainUsecase(TrainRepo repositories.TrainRepository) TrainUsecase {
-	return &trainUsecase{TrainRepo}
+func NewTrainUsecase(TrainRepo repositories.TrainRepository, TrainStationRepo repositories.TrainStationRepository) TrainUsecase {
+	return &trainUsecase{TrainRepo, TrainStationRepo}
 }
+
+// =============================== ADMIN ================================== \\
 
 // GetAllTrains godoc
 // @Summary      Get all train
 // @Description  Get all train
-// @Tags         Train
+// @Tags         Admin - Train
 // @Accept       json
 // @Produce      json
 // @Param page query int false "Page number"
 // @Param limit query int false "Number of items per page"
-// @Success      200 {object} dtos.GetAllTrainStatusOKResponse
+// @Success      200 {object} dtos.GetAllTrainStatusOKResponses
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /public/train [get]
+func (u *trainUsecase) GetAllTrains(page, limit int) ([]dtos.TrainResponses, int, error) {
+
+	trains, err := u.trainRepo.GetAllTrain()
+	if err != nil {
+		return nil, 0, err
+	}
+
+	var trainResponses []dtos.TrainResponses
+	for _, train := range trains {
+		getTrain, err := u.trainRepo.GetTrainByID(train.ID)
+		if err != nil {
+			return trainResponses, 0, err
+		}
+
+		// if getTrain.Status != "available" {
+		// 	continue
+		// }
+
+		getTrainStation, err := u.trainRepo.GetTrainStationByTrainID(getTrain.ID)
+		if err != nil {
+			return trainResponses, 0, err
+		}
+
+		var trainStationResponses []dtos.TrainStationResponse
+
+		for _, train := range getTrainStation {
+			getStation, err := u.trainRepo.GetStationByID2(train.StationID)
+			if err != nil {
+				return trainResponses, 0, err
+			}
+
+			trainStationResponse := dtos.TrainStationResponse{
+				StationID: train.StationID,
+				Station: dtos.StationInput{
+					Origin:  getStation.Origin,
+					Name:    getStation.Name,
+					Initial: getStation.Initial,
+				},
+				ArriveTime: train.ArriveTime,
+			}
+
+			trainStationResponses = append(trainStationResponses, trainStationResponse)
+		}
+
+		trainResponse := dtos.TrainResponses{
+			TrainID:   getTrain.ID,
+			CodeTrain: getTrain.CodeTrain,
+			Name:      getTrain.Name,
+			Route:     trainStationResponses,
+			Status:    getTrain.Status,
+			CreatedAt: getTrain.CreatedAt,
+			UpdatedAt: getTrain.UpdatedAt,
+		}
+		trainResponses = append(trainResponses, trainResponse)
+	}
+	// Apply offset and limit to trainResponses
+	start := (page - 1) * limit
+	end := start + limit
+
+	// Ensure that `start` is within the range of trainResponses
+	if start >= len(trainResponses) {
+		return nil, 0, nil
+	}
+
+	// Ensure that `end` does not exceed the length of trainResponses
+	if end > len(trainResponses) {
+		end = len(trainResponses)
+	}
+
+	subsetTrainResponses := trainResponses[start:end]
+
+	return subsetTrainResponses, len(trainResponses), nil
+}
+
+// GetAllTrainsByAdmin godoc
+// @Summary      Get all train
+// @Description  Get all train
+// @Tags         Admin - Train
+// @Accept       json
+// @Produce      json
+// @Param page query int false "Page number"
+// @Param limit query int false "Number of items per page"
+// @Param search query string false "Search data"
+// @Param sort_by query string false "Sort by name"
+// @Param filter query string false "Filter data"
+// @Success      200 {object} dtos.GetAllTrainStatusOKResponses
 // @Failure      400 {object} dtos.BadRequestResponse
 // @Failure      401 {object} dtos.UnauthorizedResponse
 // @Failure      403 {object} dtos.ForbiddenResponse
@@ -39,106 +141,160 @@ func NewTrainUsecase(TrainRepo repositories.TrainRepository) TrainUsecase {
 // @Failure      500 {object} dtos.InternalServerErrorResponse
 // @Router       /admin/train [get]
 // @Security BearerAuth
-func (u *trainUsecase) GetAllTrains(page, limit int) ([]dtos.TrainResponse, int, error) {
+func (u *trainUsecase) GetAllTrainsByAdmin(page, limit int, search, sortBy, filter string) ([]dtos.TrainResponses, int, error) {
 
-	trains, count, err := u.trainRepo.GetAllTrains(page, limit)
+	trains, err := u.trainRepo.GetAllTrain2(search)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	var trainResponses []dtos.TrainResponse
+	filter = strings.ToLower(filter)
+
+	var trainResponses []dtos.TrainResponses
 	for _, train := range trains {
-
-		stationOrigin, err := u.trainRepo.GetStationByID2(train.StationOriginID)
+		getTrain, err := u.trainRepo.GetTrainByID(train.ID)
 		if err != nil {
 			return trainResponses, 0, err
 		}
 
-		stationDestination, err := u.trainRepo.GetStationByID2(train.StationDestinationID)
+		deletedTrain := ""
+
+		if filter == "inactive" && getTrain.DeletedAt.Time.IsZero() {
+			continue
+		} else if filter == "active" && !getTrain.DeletedAt.Time.IsZero() {
+			continue
+		}
+
+		if !getTrain.DeletedAt.Time.IsZero() {
+			deletedTrain = getTrain.DeletedAt.Time.Format("2006-01-02T15:04:05.000-07:00")
+		}
+
+		// if getTrain.Status != "available" {
+		// 	continue
+		// }
+
+		getTrainStation, err := u.trainRepo.GetTrainStationByTrainID(getTrain.ID)
 		if err != nil {
 			return trainResponses, 0, err
 		}
-		trainResponse := dtos.TrainResponse{
-			TrainID:         train.ID,
-			StationOriginID: train.StationOriginID,
-			StationOrigin: dtos.StationInput{
-				Origin:  stationOrigin.Origin,
-				Name:    stationOrigin.Name,
-				Initial: stationOrigin.Initial,
-			},
-			StationDestinationID: train.StationDestinationID,
-			StationDestination: dtos.StationInput{
-				Origin:  stationDestination.Origin,
-				Name:    stationDestination.Name,
-				Initial: stationDestination.Initial,
-			},
-			DepartureTime: train.DepartureTime,
-			ArriveTime:    train.ArriveTime,
-			Name:          train.Name,
-			Route:         train.Route,
-			Status:        train.Status,
-			CreatedAt:     train.CreatedAt,
-			UpdatedAt:     train.UpdatedAt,
+
+		var trainStationResponses []dtos.TrainStationResponse
+
+		for _, train := range getTrainStation {
+			getStation, err := u.trainRepo.GetStationByID2(train.StationID)
+			if err != nil {
+				return trainResponses, 0, err
+			}
+
+			trainStationResponse := dtos.TrainStationResponse{
+				StationID: train.StationID,
+				Station: dtos.StationInput{
+					Origin:  getStation.Origin,
+					Name:    getStation.Name,
+					Initial: getStation.Initial,
+				},
+				ArriveTime: train.ArriveTime,
+			}
+
+			trainStationResponses = append(trainStationResponses, trainStationResponse)
+		}
+
+		trainResponse := dtos.TrainResponses{
+			TrainID:   getTrain.ID,
+			CodeTrain: getTrain.CodeTrain,
+			Name:      getTrain.Name,
+			Route:     trainStationResponses,
+			Status:    getTrain.Status,
+			CreatedAt: getTrain.CreatedAt,
+			UpdatedAt: getTrain.UpdatedAt,
+			DeletedAt: &deletedTrain,
 		}
 		trainResponses = append(trainResponses, trainResponse)
 	}
-	fmt.Println(trainResponses)
-	return trainResponses, count, nil
+	// Apply offset and limit to trainResponses
+	start := (page - 1) * limit
+	end := start + limit
+
+	// Ensure that `start` is within the range of trainResponses
+	if start >= len(trainResponses) {
+		return nil, 0, nil
+	}
+
+	// Ensure that `end` does not exceed the length of trainResponses
+	if end > len(trainResponses) {
+		end = len(trainResponses)
+	}
+
+	subsetTrainResponses := trainResponses[start:end]
+
+	// Sort trainResponses based on price
+	if strings.ToLower(sortBy) == "asc" {
+		sort.SliceStable(subsetTrainResponses, func(i, j int) bool {
+			return subsetTrainResponses[i].Name < subsetTrainResponses[j].Name
+		})
+	} else if strings.ToLower(sortBy) == "desc" {
+		sort.SliceStable(subsetTrainResponses, func(i, j int) bool {
+			return subsetTrainResponses[i].Name > subsetTrainResponses[j].Name
+		})
+	}
+	return subsetTrainResponses, len(trainResponses), nil
 }
 
 // GetTrainByID godoc
 // @Summary      Get train by ID
 // @Description  Get train by ID
-// @Tags         Train
+// @Tags         Admin - Train
 // @Accept       json
 // @Produce      json
 // @Param id path integer true "ID train"
-// @Success      200 {object} dtos.TrainStatusOKResponse
+// @Success      200 {object} dtos.TrainStatusOKResponses
 // @Failure      400 {object} dtos.BadRequestResponse
 // @Failure      401 {object} dtos.UnauthorizedResponse
 // @Failure      403 {object} dtos.ForbiddenResponse
 // @Failure      404 {object} dtos.NotFoundResponse
 // @Failure      500 {object} dtos.InternalServerErrorResponse
-// @Router       /admin/train/{id} [get]
-// @Security BearerAuth
-func (u *trainUsecase) GetTrainByID(id uint) (dtos.TrainResponse, error) {
-	var trainResponses dtos.TrainResponse
-	train, err := u.trainRepo.GetTrainByID(id)
+// @Router       /public/train/{id} [get]
+func (u *trainUsecase) GetTrainByID(id uint) (dtos.TrainResponses, error) {
+	var trainResponses dtos.TrainResponses
+	train, err := u.trainRepo.GetTrainByID2(id)
 	if err != nil {
 		return trainResponses, err
 	}
 
-	stationOrigin, err := u.trainRepo.GetStationByID2(train.StationOriginID)
+	getTrainStation, err := u.trainRepo.GetTrainStationByTrainID(train.ID)
 	if err != nil {
 		return trainResponses, err
 	}
 
-	stationDestination, err := u.trainRepo.GetStationByID2(train.StationDestinationID)
-	if err != nil {
-		return trainResponses, err
+	var trainStationResponses []dtos.TrainStationResponse
+
+	for _, train := range getTrainStation {
+		getStation, err := u.trainRepo.GetStationByID2(train.StationID)
+		if err != nil {
+			return trainResponses, err
+		}
+
+		trainStationResponse := dtos.TrainStationResponse{
+			StationID: train.StationID,
+			Station: dtos.StationInput{
+				Origin:  getStation.Origin,
+				Name:    getStation.Name,
+				Initial: getStation.Initial,
+			},
+			ArriveTime: train.ArriveTime,
+		}
+
+		trainStationResponses = append(trainStationResponses, trainStationResponse)
 	}
 
-	trainResponse := dtos.TrainResponse{
-		TrainID:         train.ID,
-		StationOriginID: train.StationOriginID,
-		StationOrigin: dtos.StationInput{
-			Origin:  stationOrigin.Origin,
-			Name:    stationOrigin.Name,
-			Initial: stationOrigin.Initial,
-		},
-		StationDestinationID: train.StationDestinationID,
-		StationDestination: dtos.StationInput{
-			Origin:  stationDestination.Origin,
-			Name:    stationDestination.Name,
-			Initial: stationDestination.Initial,
-		},
-		DepartureTime: train.DepartureTime,
-		ArriveTime:    train.ArriveTime,
-		Name:          train.Name,
-		Route:         train.Route,
-		Status:        train.Status,
-		CreatedAt:     train.CreatedAt,
-		UpdatedAt:     train.UpdatedAt,
+	trainResponse := dtos.TrainResponses{
+		TrainID:   train.ID,
+		CodeTrain: train.CodeTrain,
+		Name:      train.Name,
+		Route:     trainStationResponses,
+		Status:    train.Status,
+		CreatedAt: train.CreatedAt,
+		UpdatedAt: train.UpdatedAt,
 	}
 	return trainResponse, nil
 }
@@ -146,11 +302,11 @@ func (u *trainUsecase) GetTrainByID(id uint) (dtos.TrainResponse, error) {
 // CreateTrain godoc
 // @Summary      Create a new train
 // @Description  Create a new train
-// @Tags         Train
+// @Tags         Admin - Train
 // @Accept       json
 // @Produce      json
 // @Param        request body dtos.TrainInput true "Payload Body [RAW]"
-// @Success      200 {object} dtos.TrainStatusOKResponse
+// @Success      201 {object} dtos.TrainCreeatedResponse
 // @Failure      400 {object} dtos.BadRequestResponse
 // @Failure      401 {object} dtos.UnauthorizedResponse
 // @Failure      403 {object} dtos.ForbiddenResponse
@@ -158,55 +314,78 @@ func (u *trainUsecase) GetTrainByID(id uint) (dtos.TrainResponse, error) {
 // @Failure      500 {object} dtos.InternalServerErrorResponse
 // @Router       /admin/train [post]
 // @Security BearerAuth
-func (u *trainUsecase) CreateTrain(train *dtos.TrainInput) (dtos.TrainResponse, error) {
-	var trainResponsee dtos.TrainResponse
+func (u *trainUsecase) CreateTrain(train *dtos.TrainInput) (dtos.TrainResponses, error) {
+	var trainResponse dtos.TrainResponses
+	if train.CodeTrain == "" || train.Name == "" || train.Route == nil || train.Status == "" {
+		return trainResponse, errors.New("Failed to create train")
+	}
 
 	createTrain := models.Train{
-		StationOriginID:      train.StationOriginID,
-		StationDestinationID: train.StationDestinationID,
-		DepartureTime:        train.DepartureTime,
-		ArriveTime:           train.ArriveTime,
-		Name:                 train.Name,
-		Route:                train.Route,
-		Status:               train.Status,
+		CodeTrain: train.CodeTrain,
+		Name:      train.Name,
+		Status:    train.Status,
 	}
 
 	createdTrain, err := u.trainRepo.CreateTrain(createTrain)
 	if err != nil {
-		return trainResponsee, err
+		return trainResponse, err
 	}
 
-	stationOrigin, err := u.trainRepo.GetStationByID2(createdTrain.StationOriginID)
+	for _, train := range train.Route {
+		if train.ArriveTime == "" || train.StationID < 1 {
+			return trainResponse, errors.New("Failed to create train")
+		}
+		station, err := u.trainRepo.GetStationByID2(train.StationID)
+		if err != nil {
+			return trainResponse, err
+		}
+		trainStation := models.TrainStation{
+			TrainID:    createdTrain.ID,
+			StationID:  station.ID,
+			ArriveTime: train.ArriveTime,
+		}
+		_, err = u.trainStationRepo.CreateTrainStation(trainStation)
+		if err != nil {
+			return trainResponse, err
+		}
+	}
+
+	getTrain, err := u.trainRepo.GetTrainByID(createdTrain.ID)
 	if err != nil {
-		return trainResponsee, err
+		return trainResponse, err
 	}
 
-	stationDestination, err := u.trainRepo.GetStationByID2(createdTrain.StationDestinationID)
+	getTrainStation, err := u.trainRepo.GetTrainStationByTrainID(getTrain.ID)
 	if err != nil {
-		return trainResponsee, err
+		return trainResponse, err
 	}
 
-	trainResponse := dtos.TrainResponse{
-		TrainID:         createdTrain.ID,
-		StationOriginID: createdTrain.StationOriginID,
-		StationOrigin: dtos.StationInput{
-			Origin:  stationOrigin.Origin,
-			Name:    stationOrigin.Name,
-			Initial: stationOrigin.Initial,
-		},
-		StationDestinationID: createdTrain.StationDestinationID,
-		StationDestination: dtos.StationInput{
-			Origin:  stationDestination.Origin,
-			Name:    stationDestination.Name,
-			Initial: stationDestination.Initial,
-		},
-		DepartureTime: createdTrain.DepartureTime,
-		ArriveTime:    createdTrain.ArriveTime,
-		Name:          createdTrain.Name,
-		Route:         createdTrain.Route,
-		Status:        createdTrain.Status,
-		CreatedAt:     createdTrain.CreatedAt,
-		UpdatedAt:     createdTrain.UpdatedAt,
+	var trainStationResponses []dtos.TrainStationResponse
+	for _, train := range getTrainStation {
+		getStation, err := u.trainRepo.GetStationByID2(train.StationID)
+		if err != nil {
+			return trainResponse, err
+		}
+		trainStationResponse := dtos.TrainStationResponse{
+			StationID: train.StationID,
+			Station: dtos.StationInput{
+				Origin:  getStation.Origin,
+				Name:    getStation.Name,
+				Initial: getStation.Initial,
+			},
+			ArriveTime: train.ArriveTime,
+		}
+		trainStationResponses = append(trainStationResponses, trainStationResponse)
+	}
+
+	trainResponse = dtos.TrainResponses{
+		TrainID:   getTrain.ID,
+		CodeTrain: getTrain.CodeTrain,
+		Name:      getTrain.Name,
+		Route:     trainStationResponses,
+		Status:    getTrain.Status,
+		CreatedAt: getTrain.CreatedAt,
+		UpdatedAt: getTrain.UpdatedAt,
 	}
 	return trainResponse, nil
 }
@@ -214,79 +393,107 @@ func (u *trainUsecase) CreateTrain(train *dtos.TrainInput) (dtos.TrainResponse, 
 // UpdateTrain godoc
 // @Summary      Update train
 // @Description  Update train
-// @Tags         Train
+// @Tags         Admin - Train
 // @Accept       json
 // @Produce      json
 // @Param id path integer true "ID train"
 // @Param        request body dtos.TrainInput true "Payload Body [RAW]"
-// @Success      200 {object} dtos.TrainStatusOKResponse
+// @Success      200 {object} dtos.TrainStatusOKResponses
 // @Failure      400 {object} dtos.BadRequestResponse
 // @Failure      401 {object} dtos.UnauthorizedResponse
 // @Failure      403 {object} dtos.ForbiddenResponse
 // @Failure      404 {object} dtos.NotFoundResponse
 // @Failure      500 {object} dtos.InternalServerErrorResponse
-// @Router       /admin/train [put]
+// @Router       /admin/train/{id} [put]
 // @Security BearerAuth
-func (u *trainUsecase) UpdateTrain(id uint, trainInput dtos.TrainInput) (dtos.TrainResponse, error) {
-	var train models.Train
-	var trainResponse dtos.TrainResponse
-	var trainResponsee dtos.TrainResponse
+func (u *trainUsecase) UpdateTrain(id uint, train dtos.TrainInput) (dtos.TrainResponses, error) {
+	var trains models.Train
+	var trainResponse dtos.TrainResponses
+	if train.CodeTrain == "" || train.Name == "" || train.Route == nil || train.Status == "" {
+		return trainResponse, errors.New("Failed to update train")
+	}
 
-	train, err := u.trainRepo.GetTrainByID(id)
-
+	trains, err := u.trainRepo.GetTrainByID(id)
 	if err != nil {
 		return trainResponse, err
 	}
 
-	train.StationOriginID = trainInput.StationOriginID
-	train.StationDestinationID = trainInput.StationDestinationID
-	train.DepartureTime = trainInput.DepartureTime
-	train.ArriveTime = trainInput.ArriveTime
-	train.Name = trainInput.Name
-	train.Route = trainInput.Route
-	train.Status = trainInput.Status
+	trains.CodeTrain = train.CodeTrain
+	trains.Name = train.Name
+	trains.Status = train.Status
 
-	train, err = u.trainRepo.UpdateTrain(train)
-
+	createdTrain, err := u.trainRepo.UpdateTrain(trains)
 	if err != nil {
 		return trainResponse, err
 	}
 
-	stationOrigin, err := u.trainRepo.GetStationByID2(train.StationOriginID)
+	// trainStation, err := u.trainStationRepo.GetTrainStationByID(trains.ID)
+
+	err = u.trainStationRepo.DeleteTrainStationById(trains.ID)
 	if err != nil {
-		return trainResponsee, err
+		return trainResponse, err
 	}
 
-	stationDestination, err := u.trainRepo.GetStationByID2(train.StationDestinationID)
-	if err != nil {
-		return trainResponsee, err
+	for _, train := range train.Route {
+		station, err := u.trainRepo.GetStationByID2(train.StationID)
+		if err != nil {
+			return trainResponse, err
+		}
+		trainStation := models.TrainStation{
+			TrainID:    createdTrain.ID,
+			StationID:  station.ID,
+			ArriveTime: train.ArriveTime,
+		}
+		_, err = u.trainStationRepo.CreateTrainStation(trainStation)
+		if err != nil {
+			return trainResponse, err
+		}
 	}
 
-	trainResponse.TrainID = train.ID
-	trainResponse.StationOriginID = train.StationOriginID
-	trainResponse.StationOrigin.Origin = stationOrigin.Origin
-	trainResponse.StationOrigin.Name = stationOrigin.Name
-	trainResponse.StationOrigin.Initial = stationOrigin.Initial
-	trainResponse.StationDestinationID = train.StationDestinationID
-	trainResponse.StationDestination.Origin = stationDestination.Origin
-	trainResponse.StationDestination.Name = stationDestination.Name
-	trainResponse.StationDestination.Initial = stationDestination.Initial
-	trainResponse.DepartureTime = train.DepartureTime
-	trainResponse.ArriveTime = train.ArriveTime
-	trainResponse.Name = train.Name
-	trainResponse.Route = train.Route
-	trainResponse.Status = train.Status
-	trainResponse.CreatedAt = train.CreatedAt
-	trainResponse.UpdatedAt = train.UpdatedAt
+	getTrain, err := u.trainRepo.GetTrainByID(createdTrain.ID)
+	if err != nil {
+		return trainResponse, err
+	}
 
+	getTrainStation, err := u.trainRepo.GetTrainStationByTrainID(getTrain.ID)
+	if err != nil {
+		return trainResponse, err
+	}
+
+	var trainStationResponses []dtos.TrainStationResponse
+	for _, train := range getTrainStation {
+		getStation, err := u.trainRepo.GetStationByID2(train.StationID)
+		if err != nil {
+			return trainResponse, err
+		}
+		trainStationResponse := dtos.TrainStationResponse{
+			StationID: train.StationID,
+			Station: dtos.StationInput{
+				Origin:  getStation.Origin,
+				Name:    getStation.Name,
+				Initial: getStation.Initial,
+			},
+			ArriveTime: train.ArriveTime,
+		}
+		trainStationResponses = append(trainStationResponses, trainStationResponse)
+	}
+
+	trainResponse = dtos.TrainResponses{
+		TrainID:   getTrain.ID,
+		CodeTrain: getTrain.CodeTrain,
+		Name:      getTrain.Name,
+		Route:     trainStationResponses,
+		Status:    getTrain.Status,
+		CreatedAt: getTrain.CreatedAt,
+		UpdatedAt: getTrain.UpdatedAt,
+	}
 	return trainResponse, nil
-
 }
 
 // DeleteTrain godoc
 // @Summary      Delete a train
 // @Description  Delete a train
-// @Tags         Train
+// @Tags         Admin - Train
 // @Accept       json
 // @Produce      json
 // @Param id path integer true "ID train"
@@ -299,11 +506,143 @@ func (u *trainUsecase) UpdateTrain(id uint, trainInput dtos.TrainInput) (dtos.Tr
 // @Router       /admin/train/{id} [delete]
 // @Security BearerAuth
 func (u *trainUsecase) DeleteTrain(id uint) error {
-	train, err := u.trainRepo.GetTrainByID(id)
+	return u.trainRepo.DeleteTrain(id)
+}
 
+// =============================== ADMIN END ================================== \\
+
+// =============================== USER ================================== \\
+
+// SearchTrainAvailable godoc
+// @Summary      Search Train Available
+// @Description  Search Train
+// @Tags         User - Train
+// @Accept       json
+// @Produce      json
+// @Param page query int false "Page number"
+// @Param limit query int false "Number of items per page"
+// @Param station_origin_id query int true "Station origin id"
+// @Param station_destination_id query int true "Station destination id"
+// @Param sort_by_train_id query int false "Filter by train id"
+// @Param sort_by_class query string false "Filter by class name"
+// @Param sort_by_price query string false "Filter by price"
+// @Param sort_by_arrive_time query string false "Filter by arrive time"
+// @Success      200 {object} dtos.GetAllTrainStatusOKResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /public/train/search [get]
+func (u *trainUsecase) SearchTrainAvailable(page, limit, stationOriginId, stationDestinationId, sortByTrainId int, sortClassName, sortByPrice, sortByArriveTime string) ([]dtos.TrainResponse, int, error) {
+	trains, err := u.trainRepo.GetAllTrains(sortClassName, sortByTrainId)
 	if err != nil {
-		return nil
+		return nil, 0, err
 	}
-	err = u.trainRepo.DeleteTrain(train)
-	return err
+
+	var trainResponses []dtos.TrainResponse
+
+	for _, train := range trains {
+		getTrain, err := u.trainRepo.GetTrainByID(train.TrainID)
+		if err != nil {
+			return trainResponses, 0, err
+		}
+
+		getTrainStation, err := u.trainRepo.SearchTrainAvailable(getTrain.ID, uint(stationOriginId), uint(stationDestinationId))
+		if err != nil {
+			return trainResponses, 0, err
+		}
+
+		if getTrain.Status != "available" {
+			continue
+		}
+
+		// Check if route[0] matches stationOriginId and route[1] matches stationDestinationId
+		if len(getTrainStation) < 2 || getTrainStation[0].StationID != uint(stationOriginId) || getTrainStation[1].StationID != uint(stationDestinationId) {
+			continue
+		}
+
+		// Check if class has already been added or doesn't match the filterClass
+		if getTrain.ID != uint(sortByTrainId) && sortByTrainId != 0 {
+			continue
+		}
+
+		// Check if class name matches the desired class filter
+		if strings.ToLower(sortClassName) != "" && strings.ToLower(train.Class) != strings.ToLower(sortClassName) {
+			continue
+		}
+
+		var trainStationResponses []dtos.TrainStationResponse
+
+		for _, trainStation := range getTrainStation {
+			getStation, err := u.trainRepo.GetStationByID2(trainStation.StationID)
+			if err != nil {
+				return trainResponses, 0, err
+			}
+
+			trainStationResponse := dtos.TrainStationResponse{
+				StationID: trainStation.StationID,
+				Station: dtos.StationInput{
+					Origin:  getStation.Origin,
+					Name:    getStation.Name,
+					Initial: getStation.Initial,
+				},
+				ArriveTime: trainStation.ArriveTime,
+			}
+
+			trainStationResponses = append(trainStationResponses, trainStationResponse)
+		}
+
+		trainResponse := dtos.TrainResponse{
+			TrainID:   getTrain.ID,
+			CodeTrain: getTrain.CodeTrain,
+			Name:      getTrain.Name,
+			Class:     train.Class,
+			Price:     train.Price,
+			Route:     trainStationResponses,
+			Status:    getTrain.Status,
+			CreatedAt: getTrain.CreatedAt,
+			UpdatedAt: getTrain.UpdatedAt,
+		}
+		trainResponses = append(trainResponses, trainResponse)
+
+		// Sort trainResponses based on price
+		if strings.ToLower(sortByPrice) == "asc" {
+			sort.SliceStable(trainResponses, func(i, j int) bool {
+				return trainResponses[i].Price < trainResponses[j].Price
+			})
+		} else if strings.ToLower(sortByPrice) == "desc" {
+			sort.SliceStable(trainResponses, func(i, j int) bool {
+				return trainResponses[i].Price > trainResponses[j].Price
+			})
+		}
+
+		// Sort trainResponses based on arrive time
+		if strings.ToLower(sortByArriveTime) == "asc" {
+			sort.SliceStable(trainResponses, func(i, j int) bool {
+				return trainResponses[i].Route[0].ArriveTime < trainResponses[j].Route[0].ArriveTime
+			})
+		} else if strings.ToLower(sortByArriveTime) == "desc" {
+			sort.SliceStable(trainResponses, func(i, j int) bool {
+				return trainResponses[i].Route[0].ArriveTime > trainResponses[j].Route[0].ArriveTime
+			})
+		}
+	}
+	// Apply offset and limit to trainResponses
+	start := (page - 1) * limit
+	end := start + limit
+
+	// Ensure that `start` is within the range of trainResponses
+	if start >= len(trainResponses) {
+		return nil, 0, nil
+	}
+
+	// Ensure that `end` does not exceed the length of trainResponses
+	if end > len(trainResponses) {
+		end = len(trainResponses)
+	}
+
+	subsetTrainResponses := trainResponses[start:end]
+
+	return subsetTrainResponses, len(trainResponses), nil
 }

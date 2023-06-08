@@ -7,7 +7,6 @@ import (
 	"back-end-golang/usecases"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -26,106 +25,159 @@ func Init(e *echo.Echo, db *gorm.DB) {
 		log.Fatal("Error loading .env file")
 	}
 
-	// USER
-
 	userRepository := repositories.NewUserRepository(db)
 	userUsecase := usecases.NewUserUsecase(userRepository)
 	userController := controllers.NewUserController(userUsecase)
-
-	api := e.Group("/api/v1")
-	api.POST("/login", userController.UserLogin)
-	api.POST("/register", userController.UserRegister)
-
-	user := api.Group("/user")
-	user.Use(middlewares.JWTMiddleware, middlewares.RoleMiddleware("user"))
-	user.Any("", userController.UserCredential)
-	user.PATCH("/update-information", userController.UserUpdateInformation)
-	user.PUT("/update-password", userController.UserUpdatePassword)
-	user.PUT("/update-profile", userController.UserUpdateProfile)
-	user.PUT("/update-photo-profile", userController.UserUpdatePhotoProfile)
-	user.DELETE("/delete-photo-profile", userController.UserDeletePhotoProfile)
-
-	historySearchRepository := repositories.NewHistorySearchRepository(db)
-	historySearchUsecase := usecases.NewHistorySearchUsecase(historySearchRepository, userRepository)
-	historySearchController := controllers.NewHistorySearchController(historySearchUsecase)
-
-	user.GET("/history-search", historySearchController.HistorySearchGetById)
-	user.POST("/history-search", historySearchController.HistorySearchCreate)
-	user.PUT("/history-search", historySearchController.HistorySearchUpdate)
-	user.DELETE("/history-search", historySearchController.HistorySearchDelete)
-
-	// ADMIN
 
 	stationRepository := repositories.NewStationRepository(db)
 	stationUsecase := usecases.NewStationUsecase(stationRepository)
 	stationController := controllers.NewStationController(stationUsecase)
 
+	trainStationRepository := repositories.NewTrainStationRepository(db)
+	// trainStationUsecase := usecases.NewTrainStationUsecase(trainStationRepository)
+	// trainStationController := controllers.NewTrainStationController(trainStationUsecase)
+
 	trainRepository := repositories.NewTrainRepository(db)
-	trainUsecase := usecases.NewTrainUsecase(trainRepository)
+	trainUsecase := usecases.NewTrainUsecase(trainRepository, trainStationRepository)
 	trainController := controllers.NewTrainController(trainUsecase)
 
-	trainPeronRepository := repositories.NewTrainPeronRepository(db)
-	trainPeronUsecase := usecases.NewTrainPeronUsecase(trainPeronRepository)
-	trainPeronController := controllers.NewTrainPeronController(trainPeronUsecase)
+	trainCarriageRepository := repositories.NewTrainCarriageRepository(db)
+	trainCarriageUsecase := usecases.NewTrainCarriageUsecase(trainCarriageRepository, trainRepository)
+	trainCarriageController := controllers.NewTrainCarriageController(trainCarriageUsecase)
 
-	reservationRepository := repositories.NewReservationRepository(db)
-	reservationImageRepository := repositories.NewReservationImageRepository(db)
-	reservationUsecase := usecases.NewReservationUsecase(reservationRepository, reservationImageRepository)
-	reservationController := controllers.NewReservationController(reservationUsecase, reservationImageRepository)
+	ticketTravelerDetailRepository := repositories.NewTicketTravelerDetailRepository(db)
+
+	travelerDetailRepository := repositories.NewTravelerDetailRepository(db)
+
+	trainSeatRepository := repositories.NewTrainSeatRepository(db)
+
+	paymentRepository := repositories.NewPaymentRepository(db)
+	paymentUsecase := usecases.NewPaymentUsecase(paymentRepository)
+	paymentController := controllers.NewPaymentController(paymentUsecase)
+
+	ticketOrderRepository := repositories.NewTicketOrderRepository(db)
+	ticketOrderUsecase := usecases.NewTicketOrderUsecase(ticketOrderRepository, ticketTravelerDetailRepository, travelerDetailRepository, trainCarriageRepository, trainRepository, trainSeatRepository, stationRepository, trainStationRepository, paymentRepository, userRepository)
+	ticketOrderController := controllers.NewTicketOrderController(ticketOrderUsecase)
+
+	dashboardRepository := repositories.NewDashboardRepository(db)
+	dashboardUsecase := usecases.NewDashboardUsecase(dashboardRepository, userRepository, ticketOrderRepository, ticketTravelerDetailRepository, travelerDetailRepository, trainCarriageRepository, trainRepository, trainSeatRepository, stationRepository, trainStationRepository, paymentRepository)
+	dashboardController := controllers.NewDashboardController(dashboardUsecase)
 
 	articleRepository := repositories.NewArticleRepository(db)
 	articleUsecase := usecases.NewArticleUsecase(articleRepository)
 	articleController := controllers.NewArticleController(articleUsecase)
 
-	recommendationRepository := repositories.NewRecommendationRepository(db)
-	recommendationUsecase := usecases.NewRecommendationUsecase(recommendationRepository)
-	recommendationController := controllers.NewRecommendationController(recommendationUsecase)
+	historySearchRepository := repositories.NewHistorySearchRepository(db)
+	historySearchUsecase := usecases.NewHistorySearchUsecase(historySearchRepository, userRepository)
+	historySearchController := controllers.NewHistorySearchController(historySearchUsecase)
+
+	hotelRepository := repositories.NewHotelRepository(db)
+	hotelImageRepository := repositories.NewHotelImageRepository(db)
+	hotelFacilitiesRepository := repositories.NewHotelFacilitiesRepository(db)
+	hotelPolicyRepository := repositories.NewHotelPoliciesRepository(db)
+	hotelUsecase := usecases.NewHotelUsecase(hotelRepository, hotelImageRepository, hotelFacilitiesRepository, hotelPolicyRepository)
+	hotelController := controllers.NewHotelController(hotelUsecase)
+
+	hotelRoomRepository := repositories.NewHotelRoomRepository(db)
+	hotelRoomImageRepository := repositories.NewHotelRoomImageRepository(db)
+	hotelRoomFacilitiesRepository := repositories.NewHotelRoomFacilitiesRepository(db)
+	hotelRoomUsecase := usecases.NewHotelRoomUsecase(hotelRepository, hotelRoomRepository, hotelRoomImageRepository, hotelRoomFacilitiesRepository)
+	hotelRoomController := controllers.NewHotelRoomController(hotelRoomUsecase)
+
+	// Middleware CORS
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"}, // Izinkan semua domain
+		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
+	}))
+
+	api := e.Group("/api/v1")
+	public := api.Group("/public")
+
+	// USER
+	api.POST("/login", userController.UserLogin)
+	api.POST("/register", userController.UserRegister)
+
+	user := api.Group("/user")
+	user.Use(middlewares.JWTMiddleware, middlewares.RoleMiddleware("user"))
+
+	// user account
+	user.Any("", userController.UserCredential)
+	user.PUT("/update-password", userController.UserUpdatePassword)
+	user.PUT("/update-profile", userController.UserUpdateProfile)
+	user.PUT("/update-photo-profile", userController.UserUpdatePhotoProfile)
+	user.DELETE("/delete-photo-profile", userController.UserDeletePhotoProfile)
+
+	// train ka
+	public.GET("/train/search", trainController.SearchTrainAvailable)
+	user.POST("/train/order", ticketOrderController.CreateTicketOrder)
+	user.PATCH("/train/order", ticketOrderController.UpdateTicketOrder)
+
+	user.GET("/order/ticket", ticketOrderController.GetTicketOrders)
+	user.GET("/order/ticket/detail", ticketOrderController.GetTicketOrderByID)
+
+	user.GET("/history-search", historySearchController.HistorySearchGetAll)
+	user.POST("/history-search", historySearchController.HistorySearchCreate)
+	user.DELETE("/history-search/:id", historySearchController.HistorySearchDelete)
+
+	// ADMIN
 
 	admin := api.Group("/admin")
 	admin.Use(middlewares.JWTMiddleware, middlewares.RoleMiddleware("admin"))
-	admin.GET("/station", stationController.GetAllStations)
-	admin.GET("/station/:id", stationController.GetStationByID)
+
+	// users @ admin
+	admin.GET("/user", userController.UserGetAll)
+	admin.GET("/user/detail", userController.UserGetDetail)
+	admin.POST("/user/register", userController.UserAdminRegister)
+	admin.PUT("/user/update/:id", userController.UserAdminUpdate)
+
+	admin.GET("/dashboard", dashboardController.DashboardGetAll)
+
+	admin.GET("/order/ticket", ticketOrderController.GetTicketOrdersByAdmin)
+	admin.GET("/order/ticket/detail", ticketOrderController.GetTicketOrderDetailByAdmin)
+
+	// crud station
+	public.GET("/station", stationController.GetAllStations)
+	public.GET("/station/:id", stationController.GetStationByID)
+	admin.GET("/station", stationController.GetAllStationsByAdmin)
 	admin.PUT("/station/:id", stationController.UpdateStation)
 	admin.POST("/station", stationController.CreateStation)
 	admin.DELETE("/station/:id", stationController.DeleteStation)
 
-	admin.GET("/train", trainController.GetAllTrains)
-	admin.GET("/train/:id", trainController.GetTrainByID)
+	// crud train
+	public.GET("/train", trainController.GetAllTrains)
+	public.GET("/train/:id", trainController.GetTrainByID)
+	admin.GET("/train", trainController.GetAllTrainsByAdmin)
 	admin.PUT("/train/:id", trainController.UpdateTrain)
 	admin.POST("/train", trainController.CreateTrain)
 	admin.DELETE("/train/:id", trainController.DeleteTrain)
 
-	admin.GET("/train-peron", trainPeronController.GetAllTrainPerons)
-	admin.GET("/train-peron/:id", trainPeronController.GetTrainPeronByID)
-	admin.PUT("/train-peron/:id", trainPeronController.UpdateTrainPeron)
-	admin.POST("/train-peron", trainPeronController.CreateTrainPeron)
-	admin.DELETE("/train-peron/:id", trainPeronController.DeleteTrainPeron)
+	public.GET("/train-carriage", trainCarriageController.GetAllTrainCarriages)
+	public.GET("/train-carriage/:id", trainCarriageController.GetTrainCarriageByID)
+	admin.PUT("/train-carriage/:id", trainCarriageController.UpdateTrainCarriage)
+	admin.POST("/train-carriage", trainCarriageController.CreateTrainCarriage)
+	admin.DELETE("/train-carriage/:id", trainCarriageController.DeleteTrainCarriage)
 
-	admin.GET("/article", articleController.GetAllArticles)
-	admin.GET("/article/:id", articleController.GetArticleByID)
+	public.GET("/article", articleController.GetAllArticles)
+	public.GET("/article/:id", articleController.GetArticleByID)
 	admin.PUT("/article/:id", articleController.UpdateArticle)
 	admin.POST("/article", articleController.CreateArticle)
 	admin.DELETE("/article/:id", articleController.DeleteArticle)
 
-	admin.GET("/recommendation", recommendationController.GetAllRecommendations)
-	admin.GET("/recommendation/:id", recommendationController.GetRecommendationByID)
-	admin.PUT("/recommendation/:id", recommendationController.UpdateRecommendation)
-	admin.POST("/recommendation", recommendationController.CreateRecommendation)
-	admin.DELETE("/recommendation/:id", recommendationController.DeleteRecommendation)
+	public.GET("/payment", paymentController.GetAllPayments)
+	public.GET("/payment/:id", paymentController.GetPaymentByID)
+	admin.PUT("/payment/:id", paymentController.UpdatePayment)
+	admin.POST("/payment", paymentController.CreatePayment)
+	admin.DELETE("/payment/:id", paymentController.DeletePayment)
 
-	api.POST("/reservations", reservationController.AdminCreateReservation)
-	admin.GET("/reservations", reservationController.GetAllReservation)
-	admin.POST("/reservations", reservationController.AdminCreateReservation)
-	admin.GET("/images/:imageName", func(c echo.Context) error {
-		imageName := c.Param("imageName")
-		imagePath := "./images/" + imageName
-		// Check if the image file exists
-		if _, err := os.Stat(imagePath); os.IsNotExist(err) {
-			return c.JSON(http.StatusNotFound, echo.Map{
-				"message": "Image not found",
-			})
-		}
-		// Return the image file
-		return c.File(imagePath)
-	})
+	admin.GET("/hotel", hotelController.GetAllHotels)
+	admin.GET("/hotel/:id", hotelController.GetHotelByID)
+	admin.PUT("/hotel/:id", hotelController.UpdateHotel)
+	admin.POST("/hotel", hotelController.CreateHotel)
+	admin.DELETE("/hotel/:id", hotelController.DeleteHotel)
+
+	admin.GET("/hotel-room", hotelRoomController.GetAllHotelRooms)
+	admin.GET("/hotel-room/:id", hotelRoomController.GetHotelRoomByID)
+	admin.PUT("/hotel-room/:id", hotelRoomController.UpdateHotelRoom)
+	admin.POST("/hotel-room", hotelRoomController.CreateHotelRoom)
+	admin.DELETE("/hotel-room/:id", hotelRoomController.DeleteHotelRoom)
 }

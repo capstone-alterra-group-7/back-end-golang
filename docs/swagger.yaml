@@ -1,5 +1,51 @@
 basePath: /api/v1
 definitions:
+  dtos.ArticleCreeatedResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.ArticleResponse'
+      message:
+        example: Successfully created article
+        type: string
+      status_code:
+        example: 201
+        type: integer
+    type: object
+  dtos.ArticleResponse:
+    properties:
+      article_id:
+        example: 1
+        type: integer
+      created_at:
+        example: "2023-05-17T15:07:16.504+07:00"
+        type: string
+      description:
+        example: Description
+        type: string
+      image:
+        example: image.png
+        type: string
+      label:
+        example: Label
+        type: string
+      title:
+        example: Title
+        type: string
+      updated_at:
+        example: "2023-05-17T15:07:16.504+07:00"
+        type: string
+    type: object
+  dtos.ArticleStatusOKResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.ArticleResponse'
+      message:
+        example: Successfully get article
+        type: string
+      status_code:
+        example: 200
+        type: integer
+    type: object
   dtos.BadRequestResponse:
     properties:
       errors: {}
@@ -10,6 +56,33 @@ definitions:
         example: 400
         type: integer
     type: object
+  dtos.DashboardResponse:
+    properties:
+      count_order: {}
+      count_train: {}
+      count_user: {}
+      new_order:
+        items:
+          additionalProperties: true
+          type: object
+        type: array
+      new_user:
+        items:
+          additionalProperties: true
+          type: object
+        type: array
+    type: object
+  dtos.DashboardStatusOKResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.DashboardResponse'
+      message:
+        example: Successfully get dashboard
+        type: string
+      status_code:
+        example: 200
+        type: integer
+    type: object
   dtos.ForbiddenResponse:
     properties:
       errors: {}
@@ -18,6 +91,58 @@ definitions:
         type: string
       status_code:
         example: 403
+        type: integer
+    type: object
+  dtos.GetAllArticleStatusOKResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.ArticleResponse'
+      message:
+        example: Successfully get article
+        type: string
+      meta:
+        $ref: '#/definitions/helpers.Meta'
+      status_code:
+        example: 200
+        type: integer
+    type: object
+  dtos.GetAllHotelRoomStatusOKResponses:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.HotelRoomResponse'
+      message:
+        example: Successfully get station
+        type: string
+      meta:
+        $ref: '#/definitions/helpers.Meta'
+      status_code:
+        example: 200
+        type: integer
+    type: object
+  dtos.GetAllHotelStatusOKResponses:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.HotelResponse'
+      message:
+        example: Successfully get station
+        type: string
+      meta:
+        $ref: '#/definitions/helpers.Meta'
+      status_code:
+        example: 200
+        type: integer
+    type: object
+  dtos.GetAllPaymentStatusOKResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.PaymentResponse'
+      message:
+        example: Successfully get station
+        type: string
+      meta:
+        $ref: '#/definitions/helpers.Meta'
+      status_code:
+        example: 200
         type: integer
     type: object
   dtos.GetAllStationStatusOKResponse:
@@ -33,12 +158,25 @@ definitions:
         example: 200
         type: integer
     type: object
-  dtos.GetAllTrainPeronStatusOKResponse:
+  dtos.GetAllTicketTravelerDetailOrderStatusOKResponse:
     properties:
       data:
-        $ref: '#/definitions/dtos.TrainPeronResponse'
+        $ref: '#/definitions/dtos.TicketTravelerDetailOrderResponse'
       message:
-        example: Successfully get train peron
+        example: Successfully get ticket order
+        type: string
+      meta:
+        $ref: '#/definitions/helpers.Meta'
+      status_code:
+        example: 200
+        type: integer
+    type: object
+  dtos.GetAllTrainCarriageStatusOKResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.TrainCarriageResponse'
+      message:
+        example: Successfully get train carriage
         type: string
       meta:
         $ref: '#/definitions/helpers.Meta'
@@ -55,6 +193,348 @@ definitions:
         type: string
       meta:
         $ref: '#/definitions/helpers.Meta'
+      status_code:
+        example: 200
+        type: integer
+    type: object
+  dtos.GetAllTrainStatusOKResponses:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.TrainResponses'
+      message:
+        example: Successfully get train
+        type: string
+      meta:
+        $ref: '#/definitions/helpers.Meta'
+      status_code:
+        example: 200
+        type: integer
+    type: object
+  dtos.GetAllUserStatusOKResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.UserInformationResponse'
+      message:
+        example: Successfully get station
+        type: string
+      meta:
+        $ref: '#/definitions/helpers.Meta'
+      status_code:
+        example: 200
+        type: integer
+    type: object
+  dtos.HistorySearchCreeatedResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.HistorySearchResponse'
+      message:
+        example: Successfully created history search
+        type: string
+      status_code:
+        example: 201
+        type: integer
+    type: object
+  dtos.HistorySearchInput:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  dtos.HistorySearchResponse:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  dtos.HistorySearchStatusOKResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.HistorySearchResponse'
+      message:
+        example: Successfully get history search
+        type: string
+      status_code:
+        example: 200
+        type: integer
+    type: object
+  dtos.HotelCreeatedResponses:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.HotelResponse'
+      message:
+        example: Successfully created station
+        type: string
+      status_code:
+        example: 201
+        type: integer
+    type: object
+  dtos.HotelFacilitiesInput:
+    properties:
+      name:
+        type: string
+    type: object
+  dtos.HotelFacilitiesResponse:
+    properties:
+      hotel_id:
+        type: integer
+      name:
+        type: string
+    type: object
+  dtos.HotelImageInput:
+    properties:
+      hotel_id:
+        type: integer
+      image_url:
+        type: string
+    type: object
+  dtos.HotelImageResponse:
+    properties:
+      hotel_id:
+        type: integer
+      image_url:
+        type: string
+    type: object
+  dtos.HotelInput:
+    properties:
+      address:
+        type: string
+      class:
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      hotel_facilities:
+        items:
+          $ref: '#/definitions/dtos.HotelFacilitiesInput'
+        type: array
+      hotel_image:
+        items:
+          $ref: '#/definitions/dtos.HotelImageInput'
+        type: array
+      hotel_policy:
+        items:
+          $ref: '#/definitions/dtos.HotelPoliciesInput'
+        type: array
+      name:
+        type: string
+      phone_number:
+        type: string
+    type: object
+  dtos.HotelPoliciesInput:
+    properties:
+      is_breakfast:
+        type: boolean
+      is_check_in_check_out:
+        type: boolean
+      is_check_in_early:
+        type: boolean
+      is_check_out_overdue:
+        type: boolean
+      is_pet:
+        type: boolean
+      is_policy_canceled:
+        type: boolean
+      is_smoking:
+        type: boolean
+      policy_minimum_age:
+        type: integer
+      time_breakfast_end:
+        type: string
+      time_breakfast_start:
+        type: string
+      time_check_in:
+        type: string
+      time_check_out:
+        type: string
+    type: object
+  dtos.HotelPoliciesResponse:
+    properties:
+      hotel_id:
+        type: integer
+      is_breakfast:
+        type: boolean
+      is_check_in_check_out:
+        type: boolean
+      is_check_in_early:
+        type: boolean
+      is_check_out_overdue:
+        type: boolean
+      is_pet:
+        type: boolean
+      is_policy_canceled:
+        type: boolean
+      is_smoking:
+        type: boolean
+      policy_minimum_age:
+        type: integer
+      time_breakfast_end:
+        type: string
+      time_breakfast_start:
+        type: string
+      time_check_in:
+        type: string
+      time_check_out:
+        type: string
+    type: object
+  dtos.HotelResponse:
+    properties:
+      address:
+        type: string
+      class:
+        type: string
+      created_at:
+        example: "2023-05-17T15:07:16.504+07:00"
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      hotel_facilities:
+        items:
+          $ref: '#/definitions/dtos.HotelFacilitiesResponse'
+        type: array
+      hotel_id:
+        type: integer
+      hotel_image:
+        items:
+          $ref: '#/definitions/dtos.HotelImageResponse'
+        type: array
+      hotel_policy:
+        $ref: '#/definitions/dtos.HotelPoliciesResponse'
+      name:
+        type: string
+      phone_number:
+        type: string
+      updated_at:
+        example: "2023-05-17T15:07:16.504+07:00"
+        type: string
+    type: object
+  dtos.HotelRoomCreeatedResponses:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.HotelRoomResponse'
+      message:
+        example: Successfully created station
+        type: string
+      status_code:
+        example: 201
+        type: integer
+    type: object
+  dtos.HotelRoomFacilitiesResponse:
+    properties:
+      hotel_id:
+        type: integer
+      hotel_room_id:
+        type: integer
+      name:
+        type: string
+    type: object
+  dtos.HotelRoomImageResponse:
+    properties:
+      hotel_id:
+        type: integer
+      hotel_room_id:
+        type: integer
+      image_url:
+        type: string
+    type: object
+  dtos.HotelRoomInput:
+    properties:
+      description:
+        type: string
+      discount:
+        type: integer
+      discount_price:
+        type: integer
+      hotel_id:
+        type: integer
+      hotel_room_facility:
+        items:
+          $ref: '#/definitions/dtos.HotelRoomFacilitiesResponse'
+        type: array
+      hotel_room_image:
+        items:
+          $ref: '#/definitions/dtos.HotelRoomImageResponse'
+        type: array
+      mattress_size:
+        type: string
+      name:
+        type: string
+      normal_price:
+        type: integer
+      number_of_guest:
+        type: integer
+      number_of_mattress:
+        type: integer
+      quantity_of_room:
+        type: integer
+      size_of_room:
+        type: integer
+    type: object
+  dtos.HotelRoomResponse:
+    properties:
+      created_at:
+        example: "2023-05-17T15:07:16.504+07:00"
+        type: string
+      description:
+        type: string
+      discount:
+        type: integer
+      discount_price:
+        type: integer
+      hotel_id:
+        type: integer
+      hotel_room_facility:
+        items:
+          $ref: '#/definitions/dtos.HotelRoomFacilitiesResponse'
+        type: array
+      hotel_room_id:
+        type: integer
+      hotel_room_image:
+        items:
+          $ref: '#/definitions/dtos.HotelRoomImageResponse'
+        type: array
+      mattress_size:
+        type: string
+      name:
+        type: string
+      normal_price:
+        type: integer
+      number_of_guest:
+        type: integer
+      number_of_mattress:
+        type: integer
+      quantity_of_room:
+        type: integer
+      size_of_room:
+        type: integer
+      updated_at:
+        example: "2023-05-17T15:07:16.504+07:00"
+        type: string
+    type: object
+  dtos.HotelRoomStatusOKResponses:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.HotelRoomResponse'
+      message:
+        example: Successfully get station
+        type: string
+      status_code:
+        example: 200
+        type: integer
+    type: object
+  dtos.HotelStatusOKResponses:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.HotelResponse'
+      message:
+        example: Successfully get station
+        type: string
       status_code:
         example: 200
         type: integer
@@ -79,6 +559,93 @@ definitions:
         example: 404
         type: integer
     type: object
+  dtos.PaymentCreeatedResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.PaymentResponse'
+      message:
+        example: Successfully created station
+        type: string
+      status_code:
+        example: 201
+        type: integer
+    type: object
+  dtos.PaymentResponse:
+    properties:
+      account_name:
+        example: PT Tripease
+        type: string
+      account_number:
+        example: "00832982893221132"
+        type: string
+      created_at:
+        example: "2023-05-17T15:07:16.504+07:00"
+        type: string
+      id:
+        example: 1
+        type: integer
+      image_url:
+        example: bca.png
+        type: string
+      name:
+        example: Bank Central Asia
+        type: string
+      type:
+        example: Virtual Account
+        type: string
+      updated_at:
+        example: "2023-05-17T15:07:16.504+07:00"
+        type: string
+    type: object
+  dtos.PaymentResponses:
+    properties:
+      account_name:
+        example: PT Tripease
+        type: string
+      account_number:
+        example: "00832982893221132"
+        type: string
+      created_at:
+        example: "2023-05-17T15:07:16.504+07:00"
+        type: string
+      image_url:
+        example: bca.png
+        type: string
+      name:
+        example: Bank Central Asia
+        type: string
+      payment_id:
+        example: 1
+        type: integer
+      type:
+        example: Virtual Account
+        type: string
+      updated_at:
+        example: "2023-05-17T15:07:16.504+07:00"
+        type: string
+    type: object
+  dtos.PaymentStatusOKResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.PaymentResponse'
+      message:
+        example: Successfully get station
+        type: string
+      status_code:
+        example: 200
+        type: integer
+    type: object
+  dtos.StationCreeatedResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.StationResponse'
+      message:
+        example: Successfully created station
+        type: string
+      status_code:
+        example: 201
+        type: integer
+    type: object
   dtos.StationInput:
     properties:
       initial:
@@ -96,6 +663,9 @@ definitions:
       created_at:
         example: "2023-05-17T15:07:16.504+07:00"
         type: string
+      deleted_at:
+        example: "2023-05-17T15:07:16.504+07:00"
+        type: string
       initial:
         example: PSE
         type: string
@@ -111,6 +681,24 @@ definitions:
       updated_at:
         example: "2023-05-17T15:07:16.504+07:00"
         type: string
+    type: object
+  dtos.StationResponseSimply:
+    properties:
+      arrive_time:
+        example: "00:00"
+        type: string
+      initial:
+        example: PSE
+        type: string
+      name:
+        example: Pasar Senen
+        type: string
+      origin:
+        example: Jakarta
+        type: string
+      station_id:
+        example: 1
+        type: integer
     type: object
   dtos.StationStatusOKResponse:
     properties:
@@ -133,116 +721,368 @@ definitions:
         example: 200
         type: integer
     type: object
-  dtos.TrainInput:
+  dtos.TicketOrderCreeatedResponse:
     properties:
-      arrive_time:
-        example: "10:00"
+      data:
+        $ref: '#/definitions/dtos.TicketOrderResponse'
+      message:
+        example: Successfully created ticket order
         type: string
-      departure_time:
-        example: "05:00"
-        type: string
-      name:
-        example: Bengawan
-        type: string
-      route:
-        example: Jakarta, Bekasi, Cikarang, Karawang, Purwokerto
-        type: string
-      station_destination_id:
-        example: 2
-        type: integer
-      station_origin_id:
-        example: 1
-        type: integer
-      status:
-        example: available
-        type: string
-    type: object
-  dtos.TrainPeronInput:
-    properties:
-      class:
-        example: Ekonomi
-        type: string
-      name:
-        example: Gerbong 1
-        type: string
-      price:
-        example: 50000
-        type: integer
-      status:
-        example: available
-        type: string
-      train_id:
-        example: 1
+      status_code:
+        example: 201
         type: integer
     type: object
-  dtos.TrainPeronResponse:
+  dtos.TicketOrderInput:
     properties:
-      class:
-        example: Ekonomi
+      email_order:
+        example: me@hanifz.com
         type: string
+      name_order:
+        example: Mochammad Hanif
+        type: string
+      payment_id:
+        example: 1
+        type: integer
+      phone_number_order:
+        example: "085115151515"
+        type: string
+      quantity_adult:
+        example: 1
+        type: integer
+      quantity_infant:
+        example: 1
+        type: integer
+      ticket_traveler_detail_departure:
+        items:
+          $ref: '#/definitions/dtos.TicketTravelerDetailInput'
+        type: array
+      ticket_traveler_detail_return:
+        items:
+          $ref: '#/definitions/dtos.TicketTravelerDetailInput'
+        type: array
+      traveler_detail:
+        items:
+          $ref: '#/definitions/dtos.TravelerDetailInput'
+        type: array
+      with_return:
+        example: true
+        type: boolean
+    type: object
+  dtos.TicketOrderResponse:
+    properties:
       created_at:
         example: "2023-05-17T15:07:16.504+07:00"
         type: string
-      name:
-        example: Gerbong 1
+      email_order:
+        example: me@hanifz.com
+        type: string
+      name_order:
+        example: Mochammad Hanif
+        type: string
+      payment:
+        $ref: '#/definitions/dtos.PaymentResponses'
+      phone_number_order:
+        example: "085115151515"
         type: string
       price:
         example: 50000
         type: integer
-      seat:
-        items:
-          $ref: '#/definitions/dtos.TrainSeatResponse'
-        type: array
-      status:
-        example: available
-        type: string
-      train:
-        $ref: '#/definitions/dtos.TrainResponse'
-      train_peron_id:
+      quantity_adult:
         example: 1
+        type: integer
+      quantity_infant:
+        example: 1
+        type: integer
+      status:
+        example: unpaid
+        type: string
+      ticket_order_code:
+        example: RANDOMCODE123
+        type: string
+      ticket_order_id:
+        example: 1
+        type: integer
+      ticket_traveler_detail:
+        items:
+          $ref: '#/definitions/dtos.TicketTravelerDetailResponse'
+        type: array
+      total_amount:
+        example: 50000
         type: integer
       updated_at:
         example: "2023-05-17T15:07:16.504+07:00"
         type: string
     type: object
-  dtos.TrainPeronStatusOKResponse:
+  dtos.TicketOrderStatusOKResponse:
     properties:
       data:
-        $ref: '#/definitions/dtos.TrainPeronResponse'
+        $ref: '#/definitions/dtos.TicketOrderResponse'
       message:
-        example: Successfully get train peron
+        example: Successfully get ticket order
         type: string
       status_code:
         example: 200
         type: integer
     type: object
-  dtos.TrainResponse:
+  dtos.TicketTravelerDetailInput:
     properties:
-      arrive_time:
-        example: "10:00"
+      date:
+        example: "2023-05-31"
+        type: string
+      station_destination_id:
+        example: 2
+        type: integer
+      station_origin_id:
+        example: 1
+        type: integer
+      train_carriage_id:
+        example: 1
+        type: integer
+      train_id:
+        example: 1
+        type: integer
+      train_seat_id:
+        example: 2
+        type: integer
+    type: object
+  dtos.TicketTravelerDetailOrderResponse:
+    properties:
+      boarding_ticket_code:
+        example: RANDOMBOARDINGTICKETCODE123
         type: string
       created_at:
         example: "2023-05-17T15:07:16.504+07:00"
         type: string
-      departure_time:
-        example: "05:00"
+      date:
+        example: "2023-05-31"
+        type: string
+      email_order:
+        example: me@hanifz.com
+        type: string
+      name_order:
+        example: Mochammad Hanif
+        type: string
+      payment:
+        $ref: '#/definitions/dtos.PaymentResponses'
+      phone_number_order:
+        example: "085115151515"
+        type: string
+      quantity_adult:
+        example: 1
+        type: integer
+      quantity_infant:
+        example: 1
+        type: integer
+      station_destination:
+        $ref: '#/definitions/dtos.StationResponseSimply'
+      station_origin:
+        $ref: '#/definitions/dtos.StationResponseSimply'
+      status:
+        example: "2023-05-31"
+        type: string
+      ticket_order_code:
+        example: RANDOMCODE123
+        type: string
+      ticket_order_id:
+        example: 1
+        type: integer
+      train:
+        $ref: '#/definitions/dtos.TrainResponsesSimply'
+      traveler_detail:
+        items:
+          $ref: '#/definitions/dtos.TravelerDetailResponse'
+        type: array
+      updated_at:
+        example: "2023-05-17T15:07:16.504+07:00"
+        type: string
+      user:
+        $ref: '#/definitions/dtos.UserInformationResponses'
+    type: object
+  dtos.TicketTravelerDetailOrderStatusOKResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.TicketTravelerDetailOrderResponse'
+      message:
+        example: Successfully get ticket order
+        type: string
+      status_code:
+        example: 200
+        type: integer
+    type: object
+  dtos.TicketTravelerDetailResponse:
+    properties:
+      boarding_ticket_code:
+        example: RANDOMBOARDINGTICKETCODE123
+        type: string
+      date:
+        example: "2023-05-31"
+        type: string
+      station_destination:
+        $ref: '#/definitions/dtos.StationResponseSimply'
+      station_origin:
+        $ref: '#/definitions/dtos.StationResponseSimply'
+      ticket_traveler_detail_id:
+        example: 1
+        type: integer
+      train:
+        $ref: '#/definitions/dtos.TrainResponsesSimply'
+      traveler_detail:
+        $ref: '#/definitions/dtos.TravelerDetailResponse'
+    type: object
+  dtos.TrainCarriageCreeatedResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.TrainCarriageResponse'
+      message:
+        example: Successfully created train carriage
+        type: string
+      status_code:
+        example: 201
+        type: integer
+    type: object
+  dtos.TrainCarriageInput:
+    properties:
+      class:
+        example: Ekonomi
+        type: string
+      name:
+        example: Gerbong 1
+        type: string
+      price:
+        example: 50000
+        type: integer
+      train_id:
+        example: 1
+        type: integer
+    type: object
+  dtos.TrainCarriageResponse:
+    properties:
+      created_at:
+        example: "2023-05-17T15:07:16.504+07:00"
+        type: string
+      name:
+        example: Gerbong 1
+        type: string
+      seat:
+        items:
+          $ref: '#/definitions/dtos.TrainSeatResponse'
+        type: array
+      train:
+        $ref: '#/definitions/dtos.TrainResponse'
+      train_carriage_id:
+        example: 1
+        type: integer
+      updated_at:
+        example: "2023-05-17T15:07:16.504+07:00"
+        type: string
+    type: object
+  dtos.TrainCarriageResponses:
+    properties:
+      class:
+        example: Ekonomi
+        type: string
+      name:
+        example: Gerbong 1
+        type: string
+      seat:
+        items:
+          $ref: '#/definitions/dtos.TrainSeatResponse'
+        type: array
+      train_carriage_id:
+        example: 1
+        type: integer
+    type: object
+  dtos.TrainCarriageStatusOKResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.TrainCarriageResponse'
+      message:
+        example: Successfully get train carriage
+        type: string
+      status_code:
+        example: 200
+        type: integer
+    type: object
+  dtos.TrainCreeatedResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.TrainResponse'
+      message:
+        example: Successfully created train
+        type: string
+      status_code:
+        example: 201
+        type: integer
+    type: object
+  dtos.TrainInput:
+    properties:
+      code_train:
+        example: TRAIN001
         type: string
       name:
         example: Bengawan
         type: string
       route:
-        example: Jakarta, Bekasi, Cikarang, Karawang, Purwokerto
+        items:
+          $ref: '#/definitions/dtos.TrainStationInput'
+        type: array
+      status:
+        example: available
         type: string
-      station_destination:
-        $ref: '#/definitions/dtos.StationInput'
-      station_destination_id:
-        example: 2
+    type: object
+  dtos.TrainResponse:
+    properties:
+      class:
+        example: Ekonomi
+        type: string
+      code_train:
+        example: TRAIN001
+        type: string
+      created_at:
+        example: "2023-05-17T15:07:16.504+07:00"
+        type: string
+      name:
+        example: Bengawan
+        type: string
+      price:
+        example: 50000
         type: integer
-      station_origin:
-        $ref: '#/definitions/dtos.StationInput'
-      station_origin_id:
+      route:
+        items:
+          $ref: '#/definitions/dtos.TrainStationResponse'
+        type: array
+      status:
+        example: available
+        type: string
+      train_carriage:
+        items:
+          $ref: '#/definitions/dtos.TrainCarriageResponses'
+        type: array
+      train_id:
         example: 1
         type: integer
+      updated_at:
+        example: "2023-05-17T15:07:16.504+07:00"
+        type: string
+    type: object
+  dtos.TrainResponses:
+    properties:
+      code_train:
+        example: TRAIN001
+        type: string
+      created_at:
+        example: "2023-05-17T15:07:16.504+07:00"
+        type: string
+      deleted_at:
+        example: "2023-05-17T15:07:16.504+07:00"
+        type: string
+      name:
+        example: Bengawan
+        type: string
+      route:
+        items:
+          $ref: '#/definitions/dtos.TrainStationResponse'
+        type: array
       status:
         example: available
         type: string
@@ -253,21 +1093,99 @@ definitions:
         example: "2023-05-17T15:07:16.504+07:00"
         type: string
     type: object
+  dtos.TrainResponsesSimply:
+    properties:
+      class:
+        example: Ekonomi
+        type: string
+      code_train:
+        example: TRAIN001
+        type: string
+      name:
+        example: Bengawan
+        type: string
+      train_carriage:
+        example: Gerbong 1
+        type: string
+      train_carriage_id:
+        example: 1
+        type: integer
+      train_id:
+        example: 1
+        type: integer
+      train_price:
+        example: 50000
+        type: integer
+      train_seat:
+        example: A1
+        type: string
+      train_seat_id:
+        example: 1
+        type: integer
+    type: object
   dtos.TrainSeatResponse:
     properties:
+      id:
+        type: integer
       name:
         example: A1
         type: string
     type: object
-  dtos.TrainStatusOKResponse:
+  dtos.TrainStationInput:
+    properties:
+      arrive_time:
+        example: "00:00"
+        type: string
+      station_id:
+        example: 1
+        type: integer
+    type: object
+  dtos.TrainStationResponse:
+    properties:
+      arrive_time:
+        type: string
+      station:
+        $ref: '#/definitions/dtos.StationInput'
+      station_id:
+        example: 1
+        type: integer
+    type: object
+  dtos.TrainStatusOKResponses:
     properties:
       data:
-        $ref: '#/definitions/dtos.TrainResponse'
+        $ref: '#/definitions/dtos.TrainResponses'
       message:
         example: Successfully get train
         type: string
       status_code:
         example: 200
+        type: integer
+    type: object
+  dtos.TravelerDetailInput:
+    properties:
+      full_name:
+        example: Mochammad Hanif
+        type: string
+      id_card_number:
+        example: "1902389012801211"
+        type: string
+      title:
+        example: Saudara
+        type: string
+    type: object
+  dtos.TravelerDetailResponse:
+    properties:
+      full_name:
+        example: Mochammad Hanif
+        type: string
+      id_card_number:
+        example: "1902389012801211"
+        type: string
+      title:
+        example: Saudara
+        type: string
+      traveler_detail_id:
+        example: 1
         type: integer
     type: object
   dtos.UnauthorizedResponse:
@@ -302,14 +1220,14 @@ definitions:
       created_at:
         example: "2023-05-17T15:07:16.504+07:00"
         type: string
+      deleted_at:
+        example: "2023-05-17T15:07:16.504+07:00"
+        type: string
       email:
         example: me@hanifz.com
         type: string
       full_name:
         example: Mochammad Hanif
-        type: string
-      gender:
-        example: Laki-Laki
         type: string
       id:
         example: 1
@@ -330,6 +1248,30 @@ definitions:
         example: "2023-05-17T15:07:16.504+07:00"
         type: string
     type: object
+  dtos.UserInformationResponses:
+    properties:
+      birth_date:
+        example: "2002-09-12"
+        type: string
+      citizen:
+        example: Indonesia
+        type: string
+      email:
+        example: me@hanifz.com
+        type: string
+      full_name:
+        example: Mochammad Hanif
+        type: string
+      phone_number:
+        example: "0851555555151"
+        type: string
+      profile_picture_url:
+        example: https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg
+        type: string
+      user_id:
+        example: 1
+        type: integer
+    type: object
   dtos.UserLoginInput:
     properties:
       email:
@@ -341,6 +1283,9 @@ definitions:
     type: object
   dtos.UserRegisterInput:
     properties:
+      birth_date:
+        example: "2002-09-12"
+        type: string
       confirm_password:
         example: qweqwe123
         type: string
@@ -350,6 +1295,9 @@ definitions:
       full_name:
         example: Mochammad Hanif
         type: string
+      is_active:
+        example: true
+        type: boolean
       password:
         example: qweqwe123
         type: string
@@ -414,7 +1362,7 @@ definitions:
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
-host: ec2-3-26-30-178.ap-southeast-2.compute.amazonaws.com:8088
+host: capstone.hanifz.com
 info:
   contact:
     name: Capstone Alterra Group 7
@@ -426,6 +1374,929 @@ info:
   title: Tripease API Documentation
   version: "1.0"
 paths:
+  /admin/article:
+    post:
+      consumes:
+      - application/json
+      description: Create a new article
+      parameters:
+      - description: Image file
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Title article
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Description article
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: Label article
+        in: formData
+        name: label
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.ArticleCreeatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new article
+      tags:
+      - Admin - Article
+  /admin/article/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a article
+      parameters:
+      - description: ID article
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.StatusOKDeletedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a article
+      tags:
+      - Admin - Article
+    put:
+      consumes:
+      - application/json
+      description: Update article
+      parameters:
+      - description: ID article
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Image file
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Title article
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Description article
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: Label article
+        in: formData
+        name: label
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.ArticleStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update article
+      tags:
+      - Admin - Article
+  /admin/dashboard:
+    get:
+      consumes:
+      - application/json
+      description: Get dashboard
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.DashboardStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get dashboard
+      tags:
+      - Admin - Dashboard
+  /admin/hotel:
+    get:
+      consumes:
+      - application/json
+      description: Get all hotel
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.GetAllHotelStatusOKResponses'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Get all hotel
+      tags:
+      - Admin - Hotel
+    post:
+      consumes:
+      - application/json
+      description: Create a new hotel
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.HotelInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.HotelCreeatedResponses'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new hotel
+      tags:
+      - Admin - Hotel
+  /admin/hotel-room:
+    get:
+      consumes:
+      - application/json
+      description: Get all hotel room
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.GetAllHotelRoomStatusOKResponses'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Get all hotel room
+      tags:
+      - Admin - Hotel Room
+    post:
+      consumes:
+      - application/json
+      description: Create a new hotel room
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.HotelRoomInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.HotelRoomCreeatedResponses'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new hotel room
+      tags:
+      - Admin - Hotel Room
+  /admin/hotel-room/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a hotel room
+      parameters:
+      - description: ID Hotel Room
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.StatusOKDeletedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a hotel room
+      tags:
+      - Admin - Hotel Room
+    get:
+      consumes:
+      - application/json
+      description: Get hotel room by ID
+      parameters:
+      - description: ID Hotel Room
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.HotelRoomStatusOKResponses'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Get hotel room by ID
+      tags:
+      - Admin - Hotel Room
+    put:
+      consumes:
+      - application/json
+      description: Update hotel room
+      parameters:
+      - description: ID Hotel Room
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.HotelRoomInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.HotelRoomStatusOKResponses'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update hotel room
+      tags:
+      - Admin - Hotel Room
+  /admin/hotel/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a hotel
+      parameters:
+      - description: ID Hotel
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.StatusOKDeletedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a hotel
+      tags:
+      - Admin - Hotel
+    get:
+      consumes:
+      - application/json
+      description: Get hotel by ID
+      parameters:
+      - description: ID Hotel
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.HotelStatusOKResponses'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Get hotel by ID
+      tags:
+      - Admin - Hotel
+    put:
+      consumes:
+      - application/json
+      description: Update hotel
+      parameters:
+      - description: ID hotel
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.HotelInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.HotelStatusOKResponses'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update hotel
+      tags:
+      - Admin - Hotel
+  /admin/order/ticket:
+    get:
+      consumes:
+      - application/json
+      description: Get Ticket Order User
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      - description: search train name
+        in: query
+        name: search
+        type: string
+      - description: Date start
+        in: query
+        name: date_start
+        type: string
+      - description: Date end
+        in: query
+        name: date_end
+        type: string
+      - description: Order by name
+        in: query
+        name: order_by
+        type: string
+      - description: Filter by status order
+        in: query
+        name: filter
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.GetAllTicketTravelerDetailOrderStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Ticket Order User
+      tags:
+      - Admin - Order
+  /admin/order/ticket/detail:
+    get:
+      consumes:
+      - application/json
+      description: Get Ticket Order User
+      parameters:
+      - description: Ticket Order ID
+        in: query
+        name: ticket_order_id
+        required: true
+        type: integer
+      - description: Train ID
+        in: query
+        name: train_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.TicketTravelerDetailOrderStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Ticket Order User
+      tags:
+      - Admin - Order
+  /admin/payment:
+    post:
+      consumes:
+      - application/json
+      description: Create a new payment
+      parameters:
+      - description: Image file
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Type payment
+        in: formData
+        name: type
+        required: true
+        type: string
+      - description: Name payment
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Account name payment
+        in: formData
+        name: account_name
+        required: true
+        type: string
+      - description: Account number payment
+        in: formData
+        name: account_number
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.PaymentCreeatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new payment
+      tags:
+      - Admin - Payment
+  /admin/payment/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a payment
+      parameters:
+      - description: ID payment
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.StatusOKDeletedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a payment
+      tags:
+      - Admin - Payment
+    put:
+      consumes:
+      - application/json
+      description: Update payment
+      parameters:
+      - description: ID payment
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Image file
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Type payment
+        in: formData
+        name: type
+        required: true
+        type: string
+      - description: Name payment
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Account name payment
+        in: formData
+        name: account_name
+        required: true
+        type: string
+      - description: Account number payment
+        in: formData
+        name: account_number
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.PaymentStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update payment
+      tags:
+      - Admin - Payment
   /admin/station:
     get:
       consumes:
@@ -440,6 +2311,18 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Search data
+        in: query
+        name: search
+        type: string
+      - description: Sort by name
+        in: query
+        name: sort_by
+        type: string
+      - description: Filter data
+        in: query
+        name: filter
+        type: string
       produces:
       - application/json
       responses:
@@ -471,7 +2354,7 @@ paths:
       - BearerAuth: []
       summary: Get all stations
       tags:
-      - Station
+      - Admin - Station
     post:
       consumes:
       - application/json
@@ -486,10 +2369,10 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
-            $ref: '#/definitions/dtos.StationStatusOKResponse'
+            $ref: '#/definitions/dtos.StationCreeatedResponse'
         "400":
           description: Bad Request
           schema:
@@ -514,7 +2397,50 @@ paths:
       - BearerAuth: []
       summary: Create a new station
       tags:
-      - Station
+      - Admin - Station
+  /admin/station/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a station
+      parameters:
+      - description: ID station
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.StatusOKDeletedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a station
+      tags:
+      - Admin - Station
     put:
       consumes:
       - application/json
@@ -562,92 +2488,7 @@ paths:
       - BearerAuth: []
       summary: Update station
       tags:
-      - Station
-  /admin/station/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete a station
-      parameters:
-      - description: ID station
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dtos.StatusOKDeletedResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dtos.BadRequestResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/dtos.UnauthorizedResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dtos.ForbiddenResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/dtos.NotFoundResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dtos.InternalServerErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Delete a station
-      tags:
-      - Station
-    get:
-      consumes:
-      - application/json
-      description: Get station by ID
-      parameters:
-      - description: ID station
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dtos.StationStatusOKResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dtos.BadRequestResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/dtos.UnauthorizedResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dtos.ForbiddenResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/dtos.NotFoundResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dtos.InternalServerErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Get station by ID
-      tags:
-      - Station
+      - Admin - Station
   /admin/train:
     get:
       consumes:
@@ -662,13 +2503,25 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Search data
+        in: query
+        name: search
+        type: string
+      - description: Sort by name
+        in: query
+        name: sort_by
+        type: string
+      - description: Filter data
+        in: query
+        name: filter
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dtos.GetAllTrainStatusOKResponse'
+            $ref: '#/definitions/dtos.GetAllTrainStatusOKResponses'
         "400":
           description: Bad Request
           schema:
@@ -693,7 +2546,7 @@ paths:
       - BearerAuth: []
       summary: Get all train
       tags:
-      - Train
+      - Admin - Train
     post:
       consumes:
       - application/json
@@ -708,10 +2561,10 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
-            $ref: '#/definitions/dtos.TrainStatusOKResponse'
+            $ref: '#/definitions/dtos.TrainCreeatedResponse'
         "400":
           description: Bad Request
           schema:
@@ -736,119 +2589,28 @@ paths:
       - BearerAuth: []
       summary: Create a new train
       tags:
-      - Train
-    put:
-      consumes:
-      - application/json
-      description: Update train
-      parameters:
-      - description: ID train
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Payload Body [RAW]
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dtos.TrainInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dtos.TrainStatusOKResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dtos.BadRequestResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/dtos.UnauthorizedResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dtos.ForbiddenResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/dtos.NotFoundResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dtos.InternalServerErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Update train
-      tags:
-      - Train
-  /admin/train-peron:
-    get:
-      consumes:
-      - application/json
-      description: Get all train peron
-      parameters:
-      - description: Page number
-        in: query
-        name: page
-        type: integer
-      - description: Number of items per page
-        in: query
-        name: limit
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dtos.GetAllTrainPeronStatusOKResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dtos.BadRequestResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/dtos.UnauthorizedResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dtos.ForbiddenResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/dtos.NotFoundResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dtos.InternalServerErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Get all train peron
-      tags:
-      - Train Peron
+      - Admin - Train
+  /admin/train-carriage:
     post:
       consumes:
       - application/json
-      description: Create a new train peron
+      description: Create a new train carriage
       parameters:
       - description: Payload Body [RAW]
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dtos.TrainPeronInput'
+          items:
+            $ref: '#/definitions/dtos.TrainCarriageInput'
+          type: array
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
-            $ref: '#/definitions/dtos.TrainPeronStatusOKResponse'
+            $ref: '#/definitions/dtos.TrainCarriageCreeatedResponse'
         "400":
           description: Bad Request
           schema:
@@ -871,64 +2633,16 @@ paths:
             $ref: '#/definitions/dtos.InternalServerErrorResponse'
       security:
       - BearerAuth: []
-      summary: Create a new train peron
+      summary: Create a new train carriage
       tags:
-      - Train Peron
-    put:
-      consumes:
-      - application/json
-      description: Update train peron
-      parameters:
-      - description: ID train peron
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Payload Body [RAW]
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dtos.TrainPeronInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dtos.TrainPeronStatusOKResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dtos.BadRequestResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/dtos.UnauthorizedResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/dtos.ForbiddenResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/dtos.NotFoundResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dtos.InternalServerErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Update train peron
-      tags:
-      - Train Peron
-  /admin/train-peron/{id}:
+      - Admin - Train Carriage
+  /admin/train-carriage/{id}:
     delete:
       consumes:
       - application/json
-      description: Delete a train peron
+      description: Delete a train carriage
       parameters:
-      - description: ID train peron
+      - description: ID train carriage
         in: path
         name: id
         required: true
@@ -962,26 +2676,32 @@ paths:
             $ref: '#/definitions/dtos.InternalServerErrorResponse'
       security:
       - BearerAuth: []
-      summary: Delete a train peron
+      summary: Delete a train carriage
       tags:
-      - Train Peron
-    get:
+      - Admin - Train Carriage
+    put:
       consumes:
       - application/json
-      description: Get train peron by ID
+      description: Update train carriage
       parameters:
-      - description: ID train peron
+      - description: ID train carriage
         in: path
         name: id
         required: true
         type: integer
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.TrainCarriageInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dtos.TrainPeronStatusOKResponse'
+            $ref: '#/definitions/dtos.TrainCarriageStatusOKResponse'
         "400":
           description: Bad Request
           schema:
@@ -1004,9 +2724,9 @@ paths:
             $ref: '#/definitions/dtos.InternalServerErrorResponse'
       security:
       - BearerAuth: []
-      summary: Get train peron by ID
+      summary: Update train carriage
       tags:
-      - Train Peron
+      - Admin - Train Carriage
   /admin/train/{id}:
     delete:
       consumes:
@@ -1049,24 +2769,30 @@ paths:
       - BearerAuth: []
       summary: Delete a train
       tags:
-      - Train
-    get:
+      - Admin - Train
+    put:
       consumes:
       - application/json
-      description: Get train by ID
+      description: Update train
       parameters:
       - description: ID train
         in: path
         name: id
         required: true
         type: integer
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.TrainInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dtos.TrainStatusOKResponse'
+            $ref: '#/definitions/dtos.TrainStatusOKResponses'
         "400":
           description: Bad Request
           schema:
@@ -1089,9 +2815,206 @@ paths:
             $ref: '#/definitions/dtos.InternalServerErrorResponse'
       security:
       - BearerAuth: []
-      summary: Get train by ID
+      summary: Update train
       tags:
-      - Train
+      - Admin - Train
+  /admin/user:
+    get:
+      consumes:
+      - application/json
+      description: Get all users
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Search data
+        in: query
+        name: search
+        type: string
+      - description: Sort by name
+        in: query
+        name: sort_by
+        type: string
+      - description: Filter data
+        in: query
+        name: filter
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.GetAllUserStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all users
+      tags:
+      - Admin - User
+  /admin/user/detail:
+    get:
+      consumes:
+      - application/json
+      description: Get detail user
+      parameters:
+      - description: User ID
+        in: query
+        name: id
+        type: integer
+      - description: Update deleted user
+        in: query
+        name: isDeleted
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.GetAllUserStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get detail user
+      tags:
+      - Admin - User
+  /admin/user/register:
+    post:
+      consumes:
+      - application/json
+      description: Register an account
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.UserRegisterInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.UserCreeatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Register user
+      tags:
+      - Admin - User
+  /admin/user/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Register an account
+      parameters:
+      - description: ID user
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.UserRegisterInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.UserCreeatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user
+      tags:
+      - Admin - User
   /login:
     post:
       consumes:
@@ -1133,7 +3056,502 @@ paths:
             $ref: '#/definitions/dtos.InternalServerErrorResponse'
       summary: Login
       tags:
-      - User
+      - User - Account
+  /public/article:
+    get:
+      consumes:
+      - application/json
+      description: Get all articles
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.GetAllArticleStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Get all articles
+      tags:
+      - Admin - Article
+  /public/article/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get article by ID
+      parameters:
+      - description: ID article
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.ArticleStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Get article by ID
+      tags:
+      - Admin - Article
+  /public/payment:
+    get:
+      consumes:
+      - application/json
+      description: Get all payments
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.GetAllPaymentStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Get all payments
+      tags:
+      - Admin - Payment
+  /public/payment/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get payment by ID
+      parameters:
+      - description: ID payment
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.PaymentStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Get payment by ID
+      tags:
+      - Admin - Payment
+  /public/station:
+    get:
+      consumes:
+      - application/json
+      description: Get all stations
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.GetAllStationStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Get all stations
+      tags:
+      - Admin - Station
+  /public/station/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get station by ID
+      parameters:
+      - description: ID station
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.StationStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Get station by ID
+      tags:
+      - Admin - Station
+  /public/train:
+    get:
+      consumes:
+      - application/json
+      description: Get all train
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.GetAllTrainStatusOKResponses'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Get all train
+      tags:
+      - Admin - Train
+  /public/train-carriage:
+    get:
+      consumes:
+      - application/json
+      description: Get all train carriage
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.GetAllTrainCarriageStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Get all train carriage
+      tags:
+      - Admin - Train Carriage
+  /public/train-carriage/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get train carriage by ID
+      parameters:
+      - description: ID train carriage
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.TrainCarriageStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Get train carriage by ID
+      tags:
+      - Admin - Train Carriage
+  /public/train/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get train by ID
+      parameters:
+      - description: ID train
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.TrainStatusOKResponses'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Get train by ID
+      tags:
+      - Admin - Train
+  /public/train/search:
+    get:
+      consumes:
+      - application/json
+      description: Search Train
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Station origin id
+        in: query
+        name: station_origin_id
+        required: true
+        type: integer
+      - description: Station destination id
+        in: query
+        name: station_destination_id
+        required: true
+        type: integer
+      - description: Filter by train id
+        in: query
+        name: sort_by_train_id
+        type: integer
+      - description: Filter by class name
+        in: query
+        name: sort_by_class
+        type: string
+      - description: Filter by price
+        in: query
+        name: sort_by_price
+        type: string
+      - description: Filter by arrive time
+        in: query
+        name: sort_by_arrive_time
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.GetAllTrainStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Search Train Available
+      tags:
+      - User - Train
   /register:
     post:
       consumes:
@@ -1175,7 +3593,7 @@ paths:
             $ref: '#/definitions/dtos.InternalServerErrorResponse'
       summary: Register
       tags:
-      - User
+      - User - Account
   /user:
     get:
       consumes:
@@ -1212,7 +3630,7 @@ paths:
       - BearerAuth: []
       summary: Get Credentials
       tags:
-      - User
+      - User - Account
   /user/delete-photo-profile:
     delete:
       consumes:
@@ -1249,32 +3667,28 @@ paths:
       - BearerAuth: []
       summary: Update Information
       tags:
-      - User
-  /user/update-information:
-    patch:
+      - User - Account
+  /user/history-search:
+    get:
       consumes:
       - application/json
-      description: User update an information
+      description: Get all history search
       parameters:
-      - description: Photo file
-        in: formData
-        name: file
-        type: file
-      - description: Jenis kelamin
-        in: formData
-        name: gender
-        type: string
-      - description: Tanggal lahir
-        in: formData
-        name: birth_date
-        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dtos.UserStatusOKResponse'
+            $ref: '#/definitions/dtos.HistorySearchStatusOKResponse'
         "400":
           description: Bad Request
           schema:
@@ -1297,9 +3711,284 @@ paths:
             $ref: '#/definitions/dtos.InternalServerErrorResponse'
       security:
       - BearerAuth: []
-      summary: Update Information
+      summary: Get all history search
       tags:
-      - User
+      - User - History Search
+    post:
+      consumes:
+      - application/json
+      description: Create a new history search
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.HistorySearchInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.HistorySearchCreeatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new history search
+      tags:
+      - User - History Search
+  /user/history-search/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a history search
+      parameters:
+      - description: ID history search
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.StatusOKDeletedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a history search
+      tags:
+      - User - History Search
+  /user/order/ticket:
+    get:
+      consumes:
+      - application/json
+      description: Get Ticket Order User
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by status order
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.GetAllTicketTravelerDetailOrderStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Ticket Order User
+      tags:
+      - User - Order
+  /user/order/ticket/detail:
+    get:
+      consumes:
+      - application/json
+      description: Get Ticket Order User by ID
+      parameters:
+      - description: Ticket Order ID
+        in: query
+        name: ticket_order_id
+        required: true
+        type: integer
+      - description: Train ID
+        in: query
+        name: train_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.TicketTravelerDetailOrderStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Ticket Order User by ID
+      tags:
+      - User - Order
+  /user/train/order:
+    patch:
+      consumes:
+      - application/json
+      description: Update Order ticket KA
+      parameters:
+      - description: Ticket Order ID
+        in: query
+        name: ticket_order_id
+        required: true
+        type: integer
+      - description: Update Status Order ID
+        in: query
+        name: status
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.TicketOrderStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update Order ticket KA
+      tags:
+      - User - Train
+    post:
+      consumes:
+      - application/json
+      description: Order ticket KA
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.TicketOrderInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.TicketOrderCreeatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Order ticket KA
+      tags:
+      - User - Train
   /user/update-password:
     put:
       consumes:
@@ -1343,7 +4032,7 @@ paths:
       - BearerAuth: []
       summary: Update Password
       tags:
-      - User
+      - User - Account
   /user/update-photo-profile:
     put:
       consumes:
@@ -1385,7 +4074,7 @@ paths:
       - BearerAuth: []
       summary: Update Photo Profile
       tags:
-      - User
+      - User - Account
   /user/update-profile:
     put:
       consumes:
@@ -1429,7 +4118,7 @@ paths:
       - BearerAuth: []
       summary: Update Profile
       tags:
-      - User
+      - User - Account
 securityDefinitions:
   BearerAuth:
     in: header

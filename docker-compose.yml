@@ -4,4 +4,7 @@ services:
     build: .
     restart: on-failure
     ports:
-      - 8088:8088
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt/live/capstone.hanifz.com/fullchain.pem:/etc/nginx/ssl/fullchain.pem
+      - /etc/letsencrypt/live/capstone.hanifz.com/privkey.pem:/etc/nginx/ssl/privkey.pem

@@ -7,6 +7,6 @@ import (
 type Station struct {
 	gorm.Model
 	Origin  string
-	Name    string
+	Name    string `gorm:"unique"`
 	Initial string
 }

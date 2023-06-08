@@ -12,7 +12,6 @@ type User struct {
 	Email          string `gorm:"unique"`
 	Password       string
 	PhoneNumber    string
-	Gender         *string    `gorm:"type:ENUM('Laki-Laki','Perempuan');null"`
 	BirthDate      *time.Time `gorm:"type:DATE"`
 	ProfilePicture string
 	Citizen        string

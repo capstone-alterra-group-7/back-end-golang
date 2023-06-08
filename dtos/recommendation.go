@@ -2,11 +2,11 @@ package dtos
 
 import "time"
 
-type RecomendationInput struct {
+type RecommendationInput struct {
 	Tag string `json:"tag" form:"tag"`
 }
 
-type RecomendationResponse struct {
+type RecommendationResponse struct {
 	RecommendationID uint      `json:"recommendation_id"`
 	Tag              string    `json:"tag"`
 	CreatedAt        time.Time `json:"created_at"`
