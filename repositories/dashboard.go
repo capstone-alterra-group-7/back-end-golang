@@ -30,7 +30,7 @@ func (r *dashboardRepository) DashboardGetAll() (int, int, int, int, int, int, [
 	}
 
 	newUser := []models.User{}
-	err = r.db.Unscoped().Where("role = 'user'").Order("id DESC").Find(&newUser).Limit(10).Error
+	err = r.db.Unscoped().Where("role = 'user'").Order("id DESC").Limit(10).Find(&newUser).Error
 	if err != nil {
 		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, err
 	}
@@ -67,9 +67,9 @@ func (r *dashboardRepository) DashboardGetAll() (int, int, int, int, int, int, [
 	if err != nil {
 		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, err
 	}
-
 	newTicketOrder := []models.TicketTravelerDetail{}
-	err = r.db.Find(&newTicketOrder).Order("id DESC").Limit(10).Error
+	err = r.db.Order("id DESC").Limit(10).Find(&newTicketOrder).Error
+
 	if err != nil {
 		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, err
 	}

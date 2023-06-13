@@ -156,22 +156,21 @@ func (u *trainUsecase) GetAllTrainsByAdmin(page, limit int, search, sortBy, filt
 		if err != nil {
 			return trainResponses, 0, err
 		}
-
 		deletedTrain := ""
 
-		if filter == "inactive" && getTrain.Status == "unavailable" && getTrain.DeletedAt.Time.IsZero() {
-			continue
-		} else if filter == "active" && getTrain.Status == "available" && !getTrain.DeletedAt.Time.IsZero() {
-			continue
+		if filter != "" {
+			isAvailable := getTrain.Status == "available" && getTrain.DeletedAt.Time.IsZero()
+
+			if filter == "active" && !isAvailable {
+				continue
+			} else if filter != "active" && isAvailable {
+				continue
+			}
 		}
 
 		if !getTrain.DeletedAt.Time.IsZero() {
 			deletedTrain = getTrain.DeletedAt.Time.Format("2006-01-02T15:04:05.000-07:00")
 		}
-
-		// if getTrain.Status != "available" {
-		// 	continue
-		// }
 
 		getTrainStation, err := u.trainRepo.GetTrainStationByTrainID(getTrain.ID)
 		if err != nil {
@@ -201,8 +200,8 @@ func (u *trainUsecase) GetAllTrainsByAdmin(page, limit int, search, sortBy, filt
 
 		trainResponse := dtos.TrainResponses{
 			TrainID:   getTrain.ID,
-			CodeTrain: getTrain.CodeTrain,
-			Name:      getTrain.Name,
+			CodeTrain: strings.ToUpper(getTrain.CodeTrain),
+			Name:      strings.ToUpper(getTrain.Name),
 			Route:     trainStationResponses,
 			Status:    getTrain.Status,
 			CreatedAt: getTrain.CreatedAt,
@@ -319,8 +318,6 @@ func (u *trainUsecase) CreateTrain(train *dtos.TrainInput) (dtos.TrainResponses,
 	if train.CodeTrain == "" || train.Name == "" || train.Route == nil || train.Status == "" {
 		return trainResponse, errors.New("Failed to create train")
 	}
-	train.Name = strings.ToUpper(train.Name)
-	train.CodeTrain = strings.ToUpper(train.CodeTrain)
 
 	createTrain := models.Train{
 		CodeTrain: train.CodeTrain,
