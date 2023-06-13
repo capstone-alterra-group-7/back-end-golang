@@ -92,17 +92,17 @@ func (u *stationUsecase) GetAllStationsByAdmin(page, limit int, search, sortBy, 
 
 	var stationResponses []dtos.StationResponse
 	for _, station := range stations {
-		deletedStation := ""
+		// deletedStation := ""
 
-		if filter == "inactive" && station.DeletedAt.Time.IsZero() {
-			continue
-		} else if filter == "active" && !station.DeletedAt.Time.IsZero() {
-			continue
-		}
+		// if filter == "inactive" && station.DeletedAt.Time.IsZero() {
+		// 	continue
+		// } else if filter == "active" && !station.DeletedAt.Time.IsZero() {
+		// 	continue
+		// }
 
-		if !station.DeletedAt.Time.IsZero() {
-			deletedStation = station.DeletedAt.Time.Format("2006-01-02T15:04:05.000-07:00")
-		}
+		// if !station.DeletedAt.Time.IsZero() {
+		// 	deletedStation = station.DeletedAt.Time.Format("2006-01-02T15:04:05.000-07:00")
+		// }
 		stationResponse := dtos.StationResponse{
 			StationID: station.ID,
 			Origin:    station.Origin,
@@ -110,7 +110,7 @@ func (u *stationUsecase) GetAllStationsByAdmin(page, limit int, search, sortBy, 
 			Initial:   station.Initial,
 			CreatedAt: station.CreatedAt,
 			UpdatedAt: station.UpdatedAt,
-			DeletedAt: &deletedStation,
+			// DeletedAt: &deletedStation,
 		}
 		stationResponses = append(stationResponses, stationResponse)
 	}

@@ -134,8 +134,6 @@ func (u *userUsecase) UserRegister(input dtos.UserRegisterInput) (dtos.UserInfor
 	user.Citizen = "Indonesia"
 	user.Role = "user"
 
-	user.FullName = strings.ToUpper(user.FullName)
-
 	user, err = u.userRepo.UserCreate(user)
 	if err != nil {
 		return userResponse, err
@@ -264,8 +262,6 @@ func (u *userUsecase) UserUpdateProfile(userId uint, input dtos.UserUpdateProfil
 	user.PhoneNumber = input.PhoneNumber
 	user.BirthDate = &birthDateParse
 	user.Citizen = input.Citizen
-
-	user.FullName = strings.ToUpper(user.FullName)
 
 	user, err = u.userRepo.UserUpdate(user)
 	if err != nil {
@@ -460,7 +456,7 @@ func (u *userUsecase) UserGetAll(page, limit int, search, sortBy, filter string)
 
 		userResponse := dtos.UserInformationResponse{
 			ID:             user.ID,
-			FullName:       user.FullName,
+			FullName:       strings.ToUpper(user.FullName),
 			Email:          user.Email,
 			PhoneNumber:    user.PhoneNumber,
 			BirthDate:      helpers.FormatDateToYMD(user.BirthDate),

@@ -36,7 +36,7 @@ func (r *hotelRepository) GetAllHotels(page, limit int) ([]models.Hotel, int, er
 
 	offset := (page - 1) * limit
 
-	err = r.db.Limit(limit).Offset(offset).Find(&hotels).Error
+	err = r.db.Order("id DESC").Limit(limit).Offset(offset).Find(&hotels).Error
 
 	return hotels, int(count), err
 }

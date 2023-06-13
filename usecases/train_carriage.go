@@ -83,12 +83,8 @@ func (u *trainCarriageUsecase) GetAllTrainCarriages(trainId, page, limit int, cl
 		var trainSeatResponses []dtos.TrainSeatAvailableResponse
 		for _, trainSeat := range trainSeat {
 			isAvailable := true
-			trainCarriages, err = u.trainCarriageRepo.GetAllTrainCarriages2()
-			if err != nil {
-				return nil, 0, err
-			}
-			for _, trainC := range trainCarriages {
-				trainOrder, _ := u.ticketTravelerDetailRepo.GetTicketTravelerDetailByTrainSeatID(trainC.ID, trainSeat.ID, date)
+			if date != "" && trainId != 0 {
+				trainOrder, _ := u.ticketTravelerDetailRepo.GetTicketTravelerDetailByTrainSeatID(trainCarriage.TrainID, trainSeat.ID, date)
 				if trainOrder.ID > 0 {
 					isAvailable = false
 				}

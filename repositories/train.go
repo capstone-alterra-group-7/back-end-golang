@@ -47,7 +47,7 @@ func (r *trainRepository) GetAllTrain2(search string) ([]models.Train, error) {
 	var (
 		trains []models.Train
 	)
-	err := r.db.Unscoped().Where("code_train LIKE ? OR name LIKE ?", "%"+search+"%", "%"+search+"%").Find(&trains).Error
+	err := r.db.Unscoped().Where("code_train LIKE ? OR name LIKE ?", "%"+search+"%", "%"+search+"%").Order("id DESC").Find(&trains).Error
 
 	return trains, err
 }
