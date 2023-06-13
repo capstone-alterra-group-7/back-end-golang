@@ -21,5 +21,6 @@ func (r *notificationRepository) CreateNotificationRepository(userID uint, templ
 		"content":             content,
 	}
 	err := r.db.Create(&notification).Error
+
 	return err
 }
