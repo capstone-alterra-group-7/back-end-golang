@@ -9,6 +9,7 @@ import (
 type HotelRepository interface {
 	GetAllHotels(page, limit int) ([]models.Hotel, int, error)
 	GetHotelByID(id uint) (models.Hotel, error)
+	GetHotelByID2(id uint) (models.Hotel, error)
 	CreateHotel(hotel models.Hotel) (models.Hotel, error)
 	UpdateHotel(hotel models.Hotel) (models.Hotel, error)
 	DeleteHotel(id uint) error
@@ -45,6 +46,12 @@ func (r *hotelRepository) GetAllHotels(page, limit int) ([]models.Hotel, int, er
 func (r *hotelRepository) GetHotelByID(id uint) (models.Hotel, error) {
 	var hotel models.Hotel
 	err := r.db.Where("id = ?", id).First(&hotel).Error
+	return hotel, err
+}
+
+func (r *hotelRepository) GetHotelByID2(id uint) (models.Hotel, error) {
+	var hotel models.Hotel
+	err := r.db.Unscoped().Where("id = ?", id).First(&hotel).Error
 	return hotel, err
 }
 

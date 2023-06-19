@@ -8,7 +8,7 @@ import (
 )
 
 type DashboardRepository interface {
-	DashboardGetAll() (int, int, int, int, int, int, []models.TicketTravelerDetail, []models.User, error)
+	DashboardGetAll() (int, int, int, int, int, int, []models.TicketTravelerDetail, []models.User, []models.HotelOrder, int, int, error)
 }
 
 type dashboardRepository struct {
@@ -19,20 +19,20 @@ func NewDashboardRepository(db *gorm.DB) DashboardRepository {
 	return &dashboardRepository{db}
 }
 
-func (r *dashboardRepository) DashboardGetAll() (int, int, int, int, int, int, []models.TicketTravelerDetail, []models.User, error) {
+func (r *dashboardRepository) DashboardGetAll() (int, int, int, int, int, int, []models.TicketTravelerDetail, []models.User, []models.HotelOrder, int, int, error) {
 	var countUser int64
 	var countUserToday int64
 
 	user := models.User{}
 	err := r.db.Unscoped().Where("role = 'user'").Order("id DESC").Find(&user).Count(&countUser).Error
 	if err != nil {
-		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, err
+		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, []models.HotelOrder{}, 0, 0, err
 	}
 
 	newUser := []models.User{}
 	err = r.db.Unscoped().Where("role = 'user'").Order("id DESC").Limit(10).Find(&newUser).Error
 	if err != nil {
-		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, err
+		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, []models.HotelOrder{}, 0, 0, err
 	}
 
 	// Get the start and end of the current day
@@ -42,7 +42,7 @@ func (r *dashboardRepository) DashboardGetAll() (int, int, int, int, int, int, [
 	// Count the number of users created today
 	err = r.db.Model(&models.User{}).Unscoped().Where("role = 'user' AND created_at BETWEEN ? AND ?", startOfDay, endOfDay).Count(&countUserToday).Error
 	if err != nil {
-		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, err
+		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, []models.HotelOrder{}, 0, 0, err
 	}
 
 	var countTrain int64
@@ -50,13 +50,13 @@ func (r *dashboardRepository) DashboardGetAll() (int, int, int, int, int, int, [
 	train := models.Train{}
 	err = r.db.Unscoped().Find(&train).Count(&countTrain).Error
 	if err != nil {
-		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, err
+		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, []models.HotelOrder{}, 0, 0, err
 	}
 
 	// Count the number of users created today
 	err = r.db.Model(&models.Train{}).Unscoped().Where("created_at BETWEEN ? AND ?", startOfDay, endOfDay).Count(&countTrainToday).Error
 	if err != nil {
-		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, err
+		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, []models.HotelOrder{}, 0, 0, err
 	}
 
 	ticketOrder := []models.TicketTravelerDetail{}
@@ -65,20 +65,41 @@ func (r *dashboardRepository) DashboardGetAll() (int, int, int, int, int, int, [
 	var countTicketOrderToday int64
 	err = r.db.Find(&ticketOrder).Count(&countTicketOrder).Error
 	if err != nil {
-		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, err
+		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, []models.HotelOrder{}, 0, 0, err
 	}
 	newTicketOrder := []models.TicketTravelerDetail{}
 	err = r.db.Order("id DESC").Limit(10).Find(&newTicketOrder).Error
 
 	if err != nil {
-		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, err
+		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, []models.HotelOrder{}, 0, 0, err
 	}
 
 	// Count the number of users created today
 	err = r.db.Model(&models.TicketOrder{}).Where("created_at BETWEEN ? AND ?", startOfDay, endOfDay).Count(&countTicketOrderToday).Error
 	if err != nil {
-		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, err
+		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, []models.HotelOrder{}, 0, 0, err
 	}
 
-	return int(countUser), int(countUserToday), int(countTrain), int(countTrainToday), int(countTicketOrder), int(countTicketOrderToday), newTicketOrder, newUser, nil
+	hotelOrder := []models.HotelOrder{}
+
+	var countHotelOrder int64
+	var countHotelOrderToday int64
+	err = r.db.Find(&hotelOrder).Count(&countHotelOrder).Error
+	if err != nil {
+		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, []models.HotelOrder{}, 0, 0, err
+	}
+	newHotelOrder := []models.HotelOrder{}
+	err = r.db.Order("id DESC").Limit(10).Find(&newHotelOrder).Error
+
+	if err != nil {
+		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, []models.HotelOrder{}, 0, 0, err
+	}
+
+	// Count the number of users created today
+	err = r.db.Model(&models.HotelOrder{}).Where("created_at BETWEEN ? AND ?", startOfDay, endOfDay).Count(&countHotelOrderToday).Error
+	if err != nil {
+		return 0, 0, 0, 0, 0, 0, []models.TicketTravelerDetail{}, []models.User{}, []models.HotelOrder{}, 0, 0, err
+	}
+
+	return int(countUser), int(countUserToday), int(countTrain), int(countTrainToday), int(countTicketOrder), int(countTicketOrderToday), newTicketOrder, newUser, newHotelOrder, int(countHotelOrder), int(countHotelOrderToday), nil
 }

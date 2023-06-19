@@ -5268,6 +5268,7 @@ const docTemplate = `{
         "dtos.DashboardResponse": {
             "type": "object",
             "properties": {
+                "count_hotel": {},
                 "count_order": {},
                 "count_train": {},
                 "count_user": {},
@@ -5977,6 +5978,9 @@ const docTemplate = `{
                 "updated_at": {
                     "type": "string",
                     "example": "2023-05-17T15:07:16.504+07:00"
+                },
+                "user": {
+                    "$ref": "#/definitions/dtos.UserInformationResponses"
                 }
             }
         },

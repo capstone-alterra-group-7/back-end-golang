@@ -65,11 +65,7 @@ func (u *hotelUsecase) GetAllHotels(page, limit, minimumPrice, maximumPrice, rat
 	for _, hotel := range hotels {
 		getMinimumPriceRoom, err := u.hotelRoomRepo.GetMinimumPriceHotelRoomByHotelID(hotel.ID)
 		if err != nil {
-			if err.Error() == "record not found" {
-				getMinimumPriceRoom.DiscountPrice = 0
-			} else {
-				return hotelResponses, 0, err
-			}
+			continue
 		}
 
 		if minimumPrice > 0 && getMinimumPriceRoom.DiscountPrice < minimumPrice {
@@ -720,11 +716,7 @@ func (u *hotelUsecase) SearchHotelAvailable(userId, page, limit, minimumPrice, m
 	for _, hotel := range hotels {
 		getMinimumPriceRoom, err := u.hotelRoomRepo.GetMinimumPriceHotelRoomByHotelID(hotel.ID)
 		if err != nil {
-			if err.Error() == "record not found" {
-				getMinimumPriceRoom.DiscountPrice = 0
-			} else {
-				return hotelResponses, 0, err
-			}
+			continue
 		}
 
 		if minimumPrice > 0 && getMinimumPriceRoom.DiscountPrice < minimumPrice {

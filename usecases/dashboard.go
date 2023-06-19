@@ -3,6 +3,7 @@ package usecases
 import (
 	"back-end-golang/dtos"
 	"back-end-golang/repositories"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -24,10 +25,12 @@ type dashboardUsecase struct {
 	stationRepo              repositories.StationRepository
 	trainStationRepo         repositories.TrainStationRepository
 	paymentRepo              repositories.PaymentRepository
+	hotelOrderRepo           repositories.HotelOrderRepository
+	hotelRepo                repositories.HotelRepository
 }
 
-func NewDashboardUsecase(dashboardRepository repositories.DashboardRepository, userRepo repositories.UserRepository, ticketOrderRepo repositories.TicketOrderRepository, ticketTravelerDetailRepo repositories.TicketTravelerDetailRepository, travelerDetailRepo repositories.TravelerDetailRepository, trainCarriageRepo repositories.TrainCarriageRepository, trainRepo repositories.TrainRepository, trainSeatRepo repositories.TrainSeatRepository, stationRepo repositories.StationRepository, trainStationRepo repositories.TrainStationRepository, paymentRepo repositories.PaymentRepository) DashboardUsecase {
-	return &dashboardUsecase{dashboardRepository, userRepo, ticketOrderRepo, ticketTravelerDetailRepo, travelerDetailRepo, trainCarriageRepo, trainRepo, trainSeatRepo, stationRepo, trainStationRepo, paymentRepo}
+func NewDashboardUsecase(dashboardRepository repositories.DashboardRepository, userRepo repositories.UserRepository, ticketOrderRepo repositories.TicketOrderRepository, ticketTravelerDetailRepo repositories.TicketTravelerDetailRepository, travelerDetailRepo repositories.TravelerDetailRepository, trainCarriageRepo repositories.TrainCarriageRepository, trainRepo repositories.TrainRepository, trainSeatRepo repositories.TrainSeatRepository, stationRepo repositories.StationRepository, trainStationRepo repositories.TrainStationRepository, paymentRepo repositories.PaymentRepository, hotelOrderRepo repositories.HotelOrderRepository, hotelRepo repositories.HotelRepository) DashboardUsecase {
+	return &dashboardUsecase{dashboardRepository, userRepo, ticketOrderRepo, ticketTravelerDetailRepo, travelerDetailRepo, trainCarriageRepo, trainRepo, trainSeatRepo, stationRepo, trainStationRepo, paymentRepo, hotelOrderRepo, hotelRepo}
 }
 
 // DashboardGetAll godoc
@@ -46,11 +49,11 @@ func NewDashboardUsecase(dashboardRepository repositories.DashboardRepository, u
 // @Security BearerAuth
 func (u *dashboardUsecase) DashboardGetAll() (dtos.DashboardResponse, error) {
 	var dashboardResponse dtos.DashboardResponse
-	countUser, countUserToday, countTrain, countTrainToday, countTicketOrder, countTicketOrderToday, newTicketOrder, newUser, err := u.dashboardRepository.DashboardGetAll()
+	countUser, countUserToday, countTrain, countTrainToday, countTicketOrder, countTicketOrderToday, newTicketOrder, newUser, newHotelOrder, countHotelOrder, countHotelOrderToday, err := u.dashboardRepository.DashboardGetAll()
 	if err != nil {
 		return dashboardResponse, err
 	}
-	var newTicketOrderResponses []map[string]interface{}
+	var newOrderResponses []map[string]interface{}
 	for _, ticketTravelerDetail := range newTicketOrder {
 
 		getTicketOrder, err := u.ticketOrderRepo.GetTicketOrderByID(ticketTravelerDetail.TicketOrderID, 1)
@@ -72,8 +75,33 @@ func (u *dashboardUsecase) DashboardGetAll() (dtos.DashboardResponse, error) {
 			"updated_at":     getTicketOrder.UpdatedAt,
 			"deleted_at":     getTicketOrder.DeletedAt,
 		}
-		newTicketOrderResponses = append(newTicketOrderResponses, newTicketOrderResponse)
+		newOrderResponses = append(newOrderResponses, newTicketOrderResponse)
 	}
+
+	for _, hotelOrder := range newHotelOrder {
+
+		getHotelOrder, err := u.hotelOrderRepo.GetHotelOrderByID(hotelOrder.ID, 1)
+		if err != nil {
+			return dashboardResponse, err
+		}
+
+		getHotel, err := u.hotelRepo.GetHotelByID2(uint(getHotelOrder.HotelID))
+		if err != nil {
+			return dashboardResponse, err
+		}
+		newHotelOrderResponse := map[string]interface{}{
+			"id":             getHotelOrder.ID,
+			"order_name":     getHotel.Name,
+			"type":           "Hotel",
+			"booking_number": getHotelOrder.HotelOrderCode,
+			"price":          getHotelOrder.Price,
+			"created_at":     getHotelOrder.CreatedAt,
+			"updated_at":     getHotelOrder.UpdatedAt,
+			"deleted_at":     getHotelOrder.DeletedAt,
+		}
+		newOrderResponses = append(newOrderResponses, newHotelOrderResponse)
+	}
+
 	var newUserResponses []map[string]interface{}
 	for _, user := range newUser {
 		newUserResponse := map[string]interface{}{
@@ -87,6 +115,25 @@ func (u *dashboardUsecase) DashboardGetAll() (dtos.DashboardResponse, error) {
 		newUserResponses = append(newUserResponses, newUserResponse)
 	}
 
+	// Sorting newOrderResponses berdasarkan created_at descending menggunakan bubble sort
+	for i := 0; i < len(newOrderResponses)-1; i++ {
+		for j := 0; j < len(newOrderResponses)-i-1; j++ {
+			timeI := newOrderResponses[j]["created_at"].(time.Time)
+			timeJ := newOrderResponses[j+1]["created_at"].(time.Time)
+			if timeI.Before(timeJ) {
+				newOrderResponses[j], newOrderResponses[j+1] = newOrderResponses[j+1], newOrderResponses[j]
+			}
+		}
+	}
+
+	// Batasi menjadi 10 data terbaru
+	var limitedOrderResponses []map[string]interface{}
+	if len(newOrderResponses) > 10 {
+		limitedOrderResponses = newOrderResponses[:10]
+	} else {
+		limitedOrderResponses = newOrderResponses
+	}
+
 	dashboardResponse = dtos.DashboardResponse{
 		CountUser: echo.Map{
 			"total_user":       countUser,
@@ -97,10 +144,10 @@ func (u *dashboardUsecase) DashboardGetAll() (dtos.DashboardResponse, error) {
 			"total_train_today": countTrainToday,
 		},
 		CountOrder: echo.Map{
-			"total_order":       countTicketOrder,
-			"total_order_today": countTicketOrderToday,
+			"total_order":       countTicketOrder + countHotelOrder,
+			"total_order_today": countTicketOrderToday + countHotelOrderToday,
 		},
-		NewOrder: newTicketOrderResponses,
+		NewOrder: limitedOrderResponses,
 		NewUser:  newUserResponses,
 	}
 	return dashboardResponse, nil

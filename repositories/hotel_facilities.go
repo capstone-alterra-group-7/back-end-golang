@@ -44,7 +44,7 @@ func (r *hotelFacilitiesRepository) GetAllHotelFacilities(page, limit int) ([]mo
 
 func (r *hotelFacilitiesRepository) GetAllHotelFacilitiesByID(id uint) ([]models.HotelFacilities, error) {
 	var HotelFacilities []models.HotelFacilities
-	err := r.db.Where("hotel_id = ?", id).Find(&HotelFacilities).Error
+	err := r.db.Where("hotel_id = ?", id).Unscoped().Find(&HotelFacilities).Error
 	return HotelFacilities, err
 }
 

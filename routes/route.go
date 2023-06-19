@@ -97,7 +97,7 @@ func Init(e *echo.Echo, db *gorm.DB) {
 	hotelController := controllers.NewHotelController(hotelUsecase)
 
 	dashboardRepository := repositories.NewDashboardRepository(db)
-	dashboardUsecase := usecases.NewDashboardUsecase(dashboardRepository, userRepository, ticketOrderRepository, ticketTravelerDetailRepository, travelerDetailRepository, trainCarriageRepository, trainRepository, trainSeatRepository, stationRepository, trainStationRepository, paymentRepository)
+	dashboardUsecase := usecases.NewDashboardUsecase(dashboardRepository, userRepository, ticketOrderRepository, ticketTravelerDetailRepository, travelerDetailRepository, trainCarriageRepository, trainRepository, trainSeatRepository, stationRepository, trainStationRepository, paymentRepository, hotelOrderRepository, hotelRepository)
 	dashboardController := controllers.NewDashboardController(dashboardUsecase)
 
 	articleRepository := repositories.NewArticleRepository(db)

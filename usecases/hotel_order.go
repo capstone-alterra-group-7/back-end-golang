@@ -73,7 +73,7 @@ func (u *hotelOrderUsecase) GetHotelOrders(page, limit int, userID uint, search,
 	}
 
 	for _, hotelOrder := range hotelOrders {
-		getHotel, err := u.hotelRepo.GetHotelByID(hotelOrder.HotelID)
+		getHotel, err := u.hotelRepo.GetHotelByID2(hotelOrder.HotelID)
 		if err != nil {
 			return hotelOrderResponses, 0, err
 		}
@@ -330,7 +330,7 @@ func (u *hotelOrderUsecase) GetHotelOrdersByAdmin(page, limit, ratingClass int, 
 			continue // Skip hotel order if its dateEnd is after the specified endDate
 		}
 
-		getHotel, err := u.hotelRepo.GetHotelByID(hotelOrder.HotelID)
+		getHotel, err := u.hotelRepo.GetHotelByID2(hotelOrder.HotelID)
 		if err != nil {
 			return hotelOrderResponses, 0, err
 		}
@@ -343,6 +343,10 @@ func (u *hotelOrderUsecase) GetHotelOrdersByAdmin(page, limit, ratingClass int, 
 			continue // Skip hotel order if it doesn't match the search query
 		}
 
+		getUser, err := u.userRepo.UserGetById2(hotelOrder.UserID)
+		if err != nil {
+			return hotelOrderResponses, 0, err
+		}
 		getHotelImage, err := u.hotelImageRepo.GetAllHotelImageByID(hotelOrder.HotelID)
 		if err != nil {
 			return hotelOrderResponses, 0, err
@@ -489,8 +493,17 @@ func (u *hotelOrderUsecase) GetHotelOrdersByAdmin(page, limit, ratingClass int, 
 				AccountNumber: getPayment.AccountNumber,
 			},
 			TravelerDetail: travelerDetailResponses,
-			CreatedAt:      hotelOrder.CreatedAt,
-			UpdatedAt:      hotelOrder.UpdatedAt,
+			User: &dtos.UserInformationResponses{
+				ID:             getUser.ID,
+				FullName:       getUser.FullName,
+				Email:          getUser.Email,
+				PhoneNumber:    getUser.PhoneNumber,
+				BirthDate:      helpers.FormatDateToYMD(getUser.BirthDate),
+				ProfilePicture: getUser.ProfilePicture,
+				Citizen:        getUser.Citizen,
+			},
+			CreatedAt: hotelOrder.CreatedAt,
+			UpdatedAt: hotelOrder.UpdatedAt,
 		}
 
 		if ratingClass > 0 && getHotel.Class < ratingClass {
@@ -548,7 +561,7 @@ func (u *hotelOrderUsecase) GetHotelOrdersDetailByAdmin(hotelOrderId uint) (dtos
 		return hotelOrderResponses, err
 	}
 
-	getHotel, err := u.hotelRepo.GetHotelByID(hotelOrder.HotelID)
+	getHotel, err := u.hotelRepo.GetHotelByID2(hotelOrder.HotelID)
 	if err != nil {
 		return hotelOrderResponses, err
 	}
@@ -740,7 +753,7 @@ func (u *hotelOrderUsecase) GetHotelOrderByID(userID, hotelOrderId uint, isCheck
 		_, _ = u.hotelOrderRepo.UpdateHotelOrder(hotelOrder)
 	}
 
-	getHotel, err := u.hotelRepo.GetHotelByID(hotelOrder.HotelID)
+	getHotel, err := u.hotelRepo.GetHotelByID2(hotelOrder.HotelID)
 	if err != nil {
 		return hotelOrderResponses, err
 	}
