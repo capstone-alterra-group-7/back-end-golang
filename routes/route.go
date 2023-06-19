@@ -107,6 +107,10 @@ func Init(e *echo.Echo, db *gorm.DB) {
 	notificationUsecase := usecases.NewNotificationUsecase(notificationRepository, templateMessageRepository, userRepository, hotelOrderRepository, ticketOrderRepository)
 	notificationController := controllers.NewNotificationController(notificationUsecase)
 
+	historySearchHotel := repositories.NewHistorySearchHotelRepository(db)
+	historySearchHotelUsecase := usecases.NewHistorySearchHotelUsecase(historySearchHotel, hotelRepository, userRepository)
+	historySearchHotelController := controllers.NewHistorySearchHotelController(historySearchHotelUsecase)
+
 	// Middleware CORS
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"}, // Izinkan semua domain
@@ -152,6 +156,10 @@ func Init(e *echo.Echo, db *gorm.DB) {
 	user.GET("/history-search", historySearchController.HistorySearchGetAll)
 	user.POST("/history-search", historySearchController.HistorySearchCreate)
 	user.DELETE("/history-search/:id", historySearchController.HistorySearchDelete)
+
+	user.GET("/history-search-hotel", historySearchHotelController.GetAllHistorySearchHotels)
+	user.POST("/history-search-hotel", historySearchHotelController.CreateHistorySearchHotel)
+	user.DELETE("/history-search-hotel/:id", historySearchHotelController.DeleteHistorySearchHotel)
 
 	user.GET("/notification/:id", notificationController.GetNotificationByUserID)
 
