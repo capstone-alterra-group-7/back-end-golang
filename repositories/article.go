@@ -12,6 +12,7 @@ type ArticleRepository interface {
 	CreateArticle(article models.Article) (models.Article, error)
 	UpdateArticle(article models.Article) (models.Article, error)
 	DeleteArticle(id uint) error
+	ForceDeleteArticle(id uint) error
 }
 
 type articleRepository struct {
@@ -60,5 +61,11 @@ func (r *articleRepository) UpdateArticle(article models.Article) (models.Articl
 func (r *articleRepository) DeleteArticle(id uint) error {
 	var article models.Article
 	err := r.db.Where("id = ?", id).Delete(&article).Error
+	return err
+}
+
+func (r *articleRepository) ForceDeleteArticle(id uint) error {
+	var article models.Article
+	err := r.db.Unscoped().Where("id = ?", id).Delete(&article).Error
 	return err
 }

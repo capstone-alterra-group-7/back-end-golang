@@ -48,6 +48,42 @@ func ConnectDB() (*gorm.DB, error) {
 
 	return dbConn, nil
 }
+
+func ConnectDBTest() (*gorm.DB, error) {
+	// Load the Asia/Jakarta location
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		// Handle the error
+	}
+	DB_HOST := "localhost"
+	DB_USER := "root"
+	DB_PASSWORD := ""
+	DB_NAME := "alta_capstone_be"
+	DB_PORT := "3306"
+
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		DB_USER,
+		DB_PASSWORD,
+		DB_HOST,
+		DB_PORT,
+		DB_NAME,
+	)
+
+	dbConn, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+	if err != nil {
+		panic(err)
+	}
+
+	dbConn = dbConn.Session(&gorm.Session{
+		NowFunc: func() time.Time {
+			return time.Now().In(location)
+		},
+	})
+
+	return dbConn, nil
+}
+
 func AccountSeeder(db *gorm.DB) error {
 	password := "$2a$10$QXBNiEWub5z3TX5LFewSy.atj0iARk1vCZDgzRQTDp5xOQopj4WRW"
 	users := []models.User{
