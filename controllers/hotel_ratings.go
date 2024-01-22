@@ -80,9 +80,9 @@ func (c *hotelRatingsController) CreateHotelRating(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(
-		http.StatusOK,
+		http.StatusCreated,
 		helpers.NewResponse(
-			http.StatusOK,
+			http.StatusCreated,
 			"Success to create hotel rating",
 			ratings,
 		),

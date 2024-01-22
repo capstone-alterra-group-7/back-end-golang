@@ -425,9 +425,9 @@ func (c *hotelOrderController) UpdateHotelOrder(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(
-		http.StatusCreated,
+		http.StatusOK,
 		helpers.NewResponse(
-			http.StatusCreated,
+			http.StatusOK,
 			"Successfully to update a hotel order",
 			hotelOrder,
 		),

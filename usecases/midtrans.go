@@ -55,7 +55,7 @@ func GenerateSnapReq(input dtos.MidtransInput) *snap.Request {
 		},
 		Expiry: &snap.ExpiryDetails{
 			Unit:     "minutes",
-			Duration: 1,
+			Duration: 60,
 		},
 		CreditCard: &snap.CreditCardDetails{
 			Secure: true,

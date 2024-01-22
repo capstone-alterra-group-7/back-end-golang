@@ -421,9 +421,9 @@ func (c *ticketOrderController) UpdateTicketOrder(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(
-		http.StatusCreated,
+		http.StatusOK,
 		helpers.NewResponse(
-			http.StatusCreated,
+			http.StatusOK,
 			"Successfully to update a ticket order",
 			ticketOrder,
 		),
