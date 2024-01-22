@@ -1000,7 +1000,7 @@ func (u *hotelOrderUsecase) CreateHotelOrder(userID uint, hotelOrderInput dtos.H
 		duration := dateEndParse.Sub(dateStartParse)
 		days = int(duration.Hours() / 24)
 	} else if hotelOrderInput.DateStart == hotelOrderInput.DateEnd {
-		return hotelOrderResponse, errors.New("Date end must be one day earlier than")
+		days = 1
 	} else {
 		return hotelOrderResponse, errors.New("Failed to date start cannot be larger than date end")
 	}
@@ -1274,7 +1274,7 @@ func (u *hotelOrderUsecase) CreateHotelOrderMidtrans(userID uint, hotelOrderInpu
 		duration := dateEndParse.Sub(dateStartParse)
 		days = int(duration.Hours() / 24)
 	} else if hotelOrderInput.DateStart == hotelOrderInput.DateEnd {
-		return hotelOrderResponse, errors.New("Date end must be one day earlier than")
+		days = 1
 	} else {
 		return hotelOrderResponse, errors.New("Failed to date start cannot be larger than date end")
 	}
