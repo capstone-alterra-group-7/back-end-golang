@@ -5,7 +5,6 @@ import (
 	_ "back-end-golang/docs"
 	"back-end-golang/routes"
 	"log"
-
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
