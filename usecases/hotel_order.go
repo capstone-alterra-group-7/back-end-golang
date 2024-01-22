@@ -1120,10 +1120,6 @@ func (u *hotelOrderUsecase) CreateHotelOrder(userID uint, hotelOrderInput dtos.H
 		return hotelOrderResponse, err
 	}
 
-	if (hotelOrderInput.QuantityAdult + hotelOrderInput.QuantityInfant) > getHotelRoom.NumberOfGuest {
-		return hotelOrderResponse, errors.New("Quantity is out of range")
-	}
-
 	sumHotelPrice = getHotelRoom.DiscountPrice
 
 	createHotelOrder.Price = sumHotelPrice
@@ -1394,10 +1390,6 @@ func (u *hotelOrderUsecase) CreateHotelOrderMidtrans(userID uint, hotelOrderInpu
 	getHotelRoom, err := u.hotelRoomRepo.GetHotelRoomByID(hotelOrder.HotelRoomID)
 	if err != nil {
 		return hotelOrderResponse, err
-	}
-
-	if (hotelOrderInput.QuantityAdult + hotelOrderInput.QuantityInfant) > getHotelRoom.NumberOfGuest {
-		return hotelOrderResponse, errors.New("Quantity is out of range")
 	}
 
 	sumHotelPrice = getHotelRoom.DiscountPrice
