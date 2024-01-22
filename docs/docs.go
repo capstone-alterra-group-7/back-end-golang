@@ -7035,6 +7035,12 @@ const docTemplate = `{
                 "hotel_policy": {
                     "$ref": "#/definitions/dtos.HotelPoliciesResponse"
                 },
+                "hotel_room": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dtos.HotelRoomHotelIDResponse"
+                    }
+                },
                 "hotel_room_start": {
                     "type": "integer"
                 },
@@ -8120,6 +8126,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/dtos.TrainCarriageResponses"
                     }
                 },
+                "train_carriage_id": {
+                    "type": "integer"
+                },
                 "train_id": {
                     "type": "integer",
                     "example": 1
@@ -8591,7 +8600,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8088",
+	Host:             "api.tripease.my.id",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "Tripease API Documentation",

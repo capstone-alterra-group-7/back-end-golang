@@ -13,7 +13,7 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:8088",
+    "host": "api.tripease.my.id",
     "basePath": "/api/v1",
     "paths": {
         "/admin/article": {
@@ -7027,6 +7027,12 @@
                 "hotel_policy": {
                     "$ref": "#/definitions/dtos.HotelPoliciesResponse"
                 },
+                "hotel_room": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dtos.HotelRoomHotelIDResponse"
+                    }
+                },
                 "hotel_room_start": {
                     "type": "integer"
                 },
@@ -8111,6 +8117,9 @@
                     "items": {
                         "$ref": "#/definitions/dtos.TrainCarriageResponses"
                     }
+                },
+                "train_carriage_id": {
+                    "type": "integer"
                 },
                 "train_id": {
                     "type": "integer",

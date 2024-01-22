@@ -809,6 +809,10 @@ definitions:
         type: array
       hotel_policy:
         $ref: '#/definitions/dtos.HotelPoliciesResponse'
+      hotel_room:
+        items:
+          $ref: '#/definitions/dtos.HotelRoomHotelIDResponse'
+        type: array
       hotel_room_start:
         type: integer
       name:
@@ -1564,6 +1568,8 @@ definitions:
         items:
           $ref: '#/definitions/dtos.TrainCarriageResponses'
         type: array
+      train_carriage_id:
+        type: integer
       train_id:
         example: 1
         type: integer
@@ -1890,7 +1896,7 @@ definitions:
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
-host: localhost:8088
+host: api.tripease.my.id
 info:
   contact:
     name: Capstone Alterra Group 7
